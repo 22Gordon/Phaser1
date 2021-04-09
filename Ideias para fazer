@@ -1,0 +1,24 @@
+Fase inicial: jogabilidade básica
+
+1- asset de background //FEITO
+
+2- asset do boneco (conjunto de imagens do boneco a mexer para os lados e de frente)
+
+3- asset de plataformas ///Falta a imagem
+
+--------------------------------------------------------
+Pontuações
+
+4- asset de algo para o player apanhar para receber pontos
+
+Implementar numa fase inicial o movimento do boneco e a colisão com as plataformas
+Possivelmente o contacto com os objetos e o contador de pontos
+
+----------------------------------
+Mais para a frente:
+
+-Asset inimigos/obstáculos... Tratar da colisão com o player
+
+Ver mecânica da camera (caso de infinite runner) e como matar o player
+
+- Trabalhar na tela de game over (como feito no tutorial 2 da aula)
