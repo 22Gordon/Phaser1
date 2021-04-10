@@ -20,6 +20,7 @@ var config = {
 var player;
 var platforms;
 var cursors;
+var blocos;
 
 var game = new Phaser.Game(config);
 
@@ -27,7 +28,7 @@ function preload ()
 {
     this.load.image('background', 'assets/background/montanhas.png');
     this.load.image('platform', 'assets/Platform/platform.png');
-    this.load.spritesheet('player', 'assets/Player/run.png', { frameWidth: 32, framHeight: 48});
+    this.load.spritesheet('player', 'assets/Player/run.png', { frameWidth: 32});
     this.load.image('bloco', 'assets/Blocos/BRICKS.png');
 
 }
@@ -45,6 +46,7 @@ function create () {
     //Criar o chão
     platforms.create(400, 568, 'platform').setScale(2).refreshBody();
 
+
     //Criar o player
     player = this.physics.add.sprite(100,450, 'player');
 
@@ -61,14 +63,14 @@ function create () {
     //Animações do player
     this.anims.create ({
         key: 'right',
-        frames: this.anims.generateFrameNumbers('player', { start:1, end: 3 }),
+        frames: this.anims.generateFrameNumbers('player', { start:1, end: 11 }),
         frameRate: 10,
         repeat: -1
     });
 
     this.anims.create ({
         key: 'left',
-        frames: this.anims.generateFrameNumbers('player', { start:1, end: 3 }),
+        frames: this.anims.generateFrameNumbers('player', { start:1, end: 11 }),
         frameRate: 10,
         repeat: -1
     });
@@ -82,17 +84,37 @@ function create () {
     //Adicionar as teclas para os inputs do jogo
     cursors = this.input.keyboard.createCursorKeys();
 
-    //Obstáculos ----------- Tentativa de adicionar blocos
-    //this.blocks = game.add.group();
+    //Obstáculos ----------- Tentativa de adicionar blocos  NÃO ESTÁ FUNCIONAL!!
+    this.blocos = this.physics.add.group();
 
-     //function makeblocks () {
-       // var wallHeight=game.rnd.integerInRange(2, 6);
-        //for (var i = 0; i < wallHeight; i++) {
-          //  var block = game.add.sprite(0, -i * 25, "bloco");
-            //blocks.add(block);
-        //}
+     function makeblocks () {
+       var wallHeight = game.rnd.integerInRange(2, 6);
+        for (var i = 0; i < wallHeight; i++) {
+            var bloco = game.add.sprite(0, -i * 25, "bloco");
+            this.blocos.add(bloco);
+        }
+        this.blocos.x = game.width - this.blocos.width
+         this.blocos.y = this.platforms.y - 50;
+
+        this.blocos.forEach(function(bloco){
+            game.physics.enable(bloco, Phaser.Physics.ARCADE);
+            bloco.body.velocity.x = -160;
+             bloco.body.gravity.y = 4;
+             bloco.body.bounce.set(1,1);
+         });
+    }
+
+    //COLISÕES
+    //game.physics.arcade.collide(this.player, this.blocos);
+    //game.physics.arcade.collide(this.platforms, this.blocos);
+    //game.physics.arcade.collide(this.blocos);
+
+    //Resetar os blocos  CRASHA O JOGO
+    //var fchild = this.blocos.getChildAt(0);
+    //if off the screen reset the blocks
+    //if (fchild.x < -game.width) {
+        //this.makeblocks();
     //}
-
 
 }
 
@@ -120,5 +142,7 @@ function update () {
     if (cursors.up.isDown && player.body.touching.down){
         player.setVelocityY(-400);
     }
+
+
 
 }

@@ -30,3 +30,13 @@ Meti o asset do boneco a andar e a saltar e ajeitei gravidades. Falta imagem par
 
 Tentei fazer uma função para adicionar blocos (e meti o asset) mas não estava a funcionar, ficou no final
 do create em comentário
+--------------------------------------------------------------------------------------------------------------
+Commit 4: 10/04 22h15
+Já meti movimento no boneco a andar para a direita pelo menos (o asset apenas tem esse)
+
+Tentei seguir uma forma que vi num guide em que eles metem blocos num grupo e andam com esses blocos para a
+esquerda mas não consegui. Tenho lá a parte do código que não funciona mas não crasha o jogo mas supostamente
+devia mostrar já os blocos (Não sei se é algum erro de código ou senão funciona)
+
+Tentei implementar os blocos a mexerem-se o que era complicado pois eles não aparecem, mas essa já crasha o jogo
+---------------------------------------------------------------------------------------------------------------
