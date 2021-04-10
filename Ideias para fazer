@@ -2,7 +2,7 @@ Fase inicial: jogabilidade básica
 
 1- asset de background //FEITO
 
-2- asset do boneco (conjunto de imagens do boneco a mexer para os lados e de frente)
+2- asset do boneco (conjunto de imagens do boneco a mexer para os lados e de frente) //FEITO
 
 3- asset de plataformas ///Falta a imagem
 
@@ -22,3 +22,11 @@ Mais para a frente:
 Ver mecânica da camera (caso de infinite runner) e como matar o player
 
 - Trabalhar na tela de game over (como feito no tutorial 2 da aula)
+
+-------------------------------------------------------------------------------------------------------------
+Commit 3: 10/04 20h
+
+Meti o asset do boneco a andar e a saltar e ajeitei gravidades. Falta imagem para quando ele vai para a esquerda
+
+Tentei fazer uma função para adicionar blocos (e meti o asset) mas não estava a funcionar, ficou no final
+do create em comentário
