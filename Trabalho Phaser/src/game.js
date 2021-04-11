@@ -63,29 +63,29 @@ function create () {
     //Animações do player
     this.anims.create ({
         key: 'right',
-        frames: this.anims.generateFrameNumbers('player', { start:23, end: 33 }),
+        frames: this.anims.generateFrameNumbers('player', { start:23, end: 34 }),
         frameRate: 10,
         repeat: -1
     });
 
     this.anims.create ({
         key: 'left',
-        frames: this.anims.generateFrameNumbers('player', { start:12, end: 22 }),
+        frames: this.anims.generateFrameNumbers('player', { start:11, end: 22 }),
         frameRate: 10,
         repeat: -1
     });
 
     this.anims.create ({
         key: 'idle',
-        frames: this.anims.generateFrameNumbers('player', { start:1, end: 10 }),
+        frames: this.anims.generateFrameNumbers('player', { start:0, end: 10 }),
         frameRate: 10,
         repeat: -1
     });
 
     this.anims.create ({
         key: 'jump',
-        frames: this.anims.generateFrameNumbers('player', { start:34, end: 34 }),
-        frameRate: 20,
+        frames: [{key: 'player', frame:35}],
+        frameRate: 10,
         repeat: -1
     })
 
@@ -145,6 +145,7 @@ function update () {
 
     if (cursors.up.isDown && player.body.touching.down){
         player.setVelocityY(-400);
+        player.anims.play('jump', true);
     }
     else if (cursors.down.isDown){
         player.setVelocityY(400);
