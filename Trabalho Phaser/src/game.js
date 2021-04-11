@@ -28,7 +28,7 @@ function preload ()
 {
     this.load.image('background', 'assets/background/montanhas.png');
     this.load.image('platform', 'assets/Platform/platform.png');
-    this.load.spritesheet('player', 'assets/Player/run.png', { frameWidth: 32});
+    this.load.spritesheet('player', 'assets/Player/player.png', { frameWidth: 32});
     this.load.image('bloco', 'assets/Blocos/BRICKS.png');
 
 }
@@ -63,23 +63,31 @@ function create () {
     //Animações do player
     this.anims.create ({
         key: 'right',
-        frames: this.anims.generateFrameNumbers('player', { start:1, end: 11 }),
+        frames: this.anims.generateFrameNumbers('player', { start:23, end: 33 }),
         frameRate: 10,
         repeat: -1
     });
 
     this.anims.create ({
         key: 'left',
-        frames: this.anims.generateFrameNumbers('player', { start:1, end: 11 }),
+        frames: this.anims.generateFrameNumbers('player', { start:12, end: 22 }),
         frameRate: 10,
         repeat: -1
     });
 
     this.anims.create ({
         key: 'idle',
-        frames: [ { key: 'player', frame: 0}],
-        frameRate: 20
+        frames: this.anims.generateFrameNumbers('player', { start:1, end: 11 }),
+        frameRate: 10,
+        repeat: -1
     });
+
+    this.anims.create ({
+        key: 'jump',
+        frames: this.anims.generateFrameNumbers('player', { start:34, end: 34 }),
+        frameRate: 20,
+        repeat: -1
+    })
 
     //Adicionar as teclas para os inputs do jogo
     cursors = this.input.keyboard.createCursorKeys();
@@ -123,26 +131,23 @@ function update () {
     if (cursors.left.isDown) {
 
         player.setVelocityX(-160);
-
         player.anims.play('left', true);
     }
-
     else if (cursors.right.isDown){
 
         player.setVelocityX(160);
-
         player.anims.play('right', true);
     }
     else{
         player.setVelocityX(0);
-
         player.anims.play('idle');
     }
 
     if (cursors.up.isDown && player.body.touching.down){
         player.setVelocityY(-400);
+        player.anims.play('jump');
     }
-
-
-
+    else if (cursors.down.isDown){
+        player.setVelocityY(400);
+    }
 }
