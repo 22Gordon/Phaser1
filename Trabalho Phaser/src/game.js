@@ -77,7 +77,7 @@ function create () {
 
     this.anims.create ({
         key: 'idle',
-        frames: this.anims.generateFrameNumbers('player', { start:1, end: 11 }),
+        frames: this.anims.generateFrameNumbers('player', { start:1, end: 10 }),
         frameRate: 10,
         repeat: -1
     });
@@ -140,12 +140,11 @@ function update () {
     }
     else{
         player.setVelocityX(0);
-        player.anims.play('idle');
+        player.anims.play('idle', true);
     }
 
     if (cursors.up.isDown && player.body.touching.down){
         player.setVelocityY(-400);
-        player.anims.play('jump');
     }
     else if (cursors.down.isDown){
         player.setVelocityY(400);
