@@ -20,7 +20,7 @@ var config = {
 var player;
 var platforms;
 var cursors;
-var blocos;
+var bloco;
 
 var game = new Phaser.Game(config);
 
@@ -50,11 +50,17 @@ function create () {
     //Criar o player
     player = this.physics.add.sprite(100,450, 'player');
 
+    bloco = this.physics.add.sprite(700, 450, 'bloco');
+
 
     //Colisão do player com o ecrã
     player.setCollideWorldBounds(true);
+    //bloco.setCollideWorldBounds(true);
     //Colisão player com as plataformas
     this.physics.add.collider(player, platforms);
+    this.physics.add.collider(bloco, platforms);
+    this.physics.add.collider(player, bloco);
+
 
     //Gravidade a que o player cai
     player.body.setGravityY(300);
@@ -93,24 +99,8 @@ function create () {
     cursors = this.input.keyboard.createCursorKeys();
 
     //Obstáculos ----------- Tentativa de adicionar blocos  NÃO ESTÁ FUNCIONAL!!
-    this.blocos = this.physics.add.group();
 
-     function makeblocks () {
-       var wallHeight = game.rnd.integerInRange(2, 6);
-        for (var i = 0; i < wallHeight; i++) {
-            var bloco = game.add.sprite(0, -i * 25, "bloco");
-            this.blocos.add(bloco);
-        }
-        this.blocos.x = game.width - this.blocos.width
-         this.blocos.y = this.platforms.y - 50;
 
-        this.blocos.forEach(function(bloco){
-            game.physics.enable(bloco, Phaser.Physics.ARCADE);
-            bloco.body.velocity.x = -160;
-             bloco.body.gravity.y = 4;
-             bloco.body.bounce.set(1,1);
-         });
-    }
 
     //COLISÕES
     //game.physics.arcade.collide(this.player, this.blocos);
@@ -150,4 +140,6 @@ function update () {
     else if (cursors.down.isDown){
         player.setVelocityY(400);
     }
+
+    bloco.setVelocityX(-80);
 }
