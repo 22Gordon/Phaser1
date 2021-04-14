@@ -16,7 +16,7 @@ var config = {
     }
 };
 
-
+var enemy;
 var player;
 var platforms;
 var cursors;
@@ -30,6 +30,7 @@ function preload ()
     this.load.image('platform', 'assets/Platform/platform.png');
     this.load.spritesheet('player', 'assets/Player/player.png', { frameWidth: 32});
     this.load.image('bloco', 'assets/Blocos/BRICKS.png');
+    this.load.spritesheet('enemy', 'assets/Enemy/frog_left.png', { frameWidth: 32});
 
 }
 
@@ -50,7 +51,7 @@ function create () {
     //Criar o player
     player = this.physics.add.sprite(100,450, 'player');
 
-    bloco = this.physics.add.sprite(700, 450, 'bloco');
+    enemy = this.physics.add.sprite(700, 450, 'enemy');
 
 
     //Colisão do player com o ecrã
@@ -58,8 +59,8 @@ function create () {
     //bloco.setCollideWorldBounds(true);
     //Colisão player com as plataformas
     this.physics.add.collider(player, platforms);
-    this.physics.add.collider(bloco, platforms);
-    this.physics.add.collider(player, bloco);
+    this.physics.add.collider(enemy, platforms);
+    this.physics.add.collider(player, enemy);
 
 
     //Gravidade a que o player cai
@@ -95,24 +96,32 @@ function create () {
         repeat: -1
     })
 
+    //Animação do inimigo
+    this.anims.create({
+        key: 'run',
+        frames: this.anims.generateFrameNumbers('enemy', {start:0, end: 11}),
+        frameRate: 10,
+        repeat: -1
+    });
+
     //Adicionar as teclas para os inputs do jogo
     cursors = this.input.keyboard.createCursorKeys();
 
-    //Obstáculos ----------- Tentativa de adicionar blocos  NÃO ESTÁ FUNCIONAL!!
 
+    this.physics.add.collider(player, enemy, hitEnemy, null, this);
 
+    //Caso o jogador toque nas bombas
 
-    //COLISÕES
-    //game.physics.arcade.collide(this.player, this.blocos);
-    //game.physics.arcade.collide(this.platforms, this.blocos);
-    //game.physics.arcade.collide(this.blocos);
+    function hitEnemy (player, bomb){
 
-    //Resetar os blocos  CRASHA O JOGO
-    //var fchild = this.blocos.getChildAt(0);
-    //if off the screen reset the blocks
-    //if (fchild.x < -game.width) {
-        //this.makeblocks();
-    //}
+        this.physics.pause();
+
+        player.setTint(0xff0000);
+
+        player.anims.play('idle');
+
+        gameOver = true;
+    }
 
 }
 
@@ -141,5 +150,7 @@ function update () {
         player.setVelocityY(400);
     }
 
-    bloco.setVelocityX(-80);
+    //Movimento e animação do inimigo
+    enemy.setVelocityX(-80);
+    enemy.anims.play('run', true);
 }

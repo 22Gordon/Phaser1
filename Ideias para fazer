@@ -42,9 +42,14 @@ devia mostrar já os blocos (Não sei se é algum erro de código ou senão func
 
 Tentei implementar os blocos a mexerem-se o que era complicado pois eles não aparecem, mas essa já crasha o jogo
 ---------------------------------------------------------------------------------------------------------------
-
 Commit 7:
 
 Movimentação do inimigo já com colisões etc... falta asset
 
 ---------------------------------------------------------------------------------------------------------------
+Commit 8:
+
+Movimentação do inimigo //FEITO
+
+tentativa de game over falhada
+----------------------------------------------------------------------------------------------------------------
