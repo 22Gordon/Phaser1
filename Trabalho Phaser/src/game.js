@@ -1,4 +1,15 @@
+let gameOptions= {
 
+    //Parde de random pixels ate um ponto altura
+    randomPixelHeigth: [-32*3,96],
+    //Parde de random pixels ate um ponto largura
+    randomPixelWidth: [32, 96],
+    //Saltos dados
+    saltos: 2,
+    //Força do salto
+    saltoForca: -400
+
+}
 
 var config = {
     type: Phaser.AUTO,
@@ -23,20 +34,18 @@ let game = new Phaser.Game(config);
 let player;
 let background;
 let platform;
-let parede1;
-let parede2;
-let parede3;
 let enemy;
+let point;
 
 function preload ()
 {
     this.load.image('background', 'assets/background/montanhas.png');
     this.load.image('platform', 'assets/Platform/platform.png');
     this.load.image('parede1', 'assets/Blocos/parede1.png');
-    this.load.image('parede2', 'assets/Blocos/parede2.png');
+    //this.load.image('parede2', 'assets/Blocos/parede2.png');
     this.load.image('parede3', 'assets/Blocos/parede3.png');
     //teste
-    this.load.image("parede", "assets/Blocos/BRICKS.png");
+
     this.load.spritesheet('player', 'assets/Player/player.png', {
         frameWidth: 32,
         frameHeight: 32
@@ -45,6 +54,14 @@ function preload ()
         frameWidth: 32,
         frameHeight: 32
     });
+
+    this.load.spritesheet('point', 'assets/Objects/Pineapple.png',{
+        frameWidth: 32,
+        frameHeight: 32
+    });
+    //teste
+    this.load.image("bloco", "assets/Blocos/BRICKS.png");
+
 
 
 }
@@ -64,14 +81,51 @@ function create () {
 
 
     //Criar o player
-    player = this.physics.add.sprite(100,450, 'player');
+    player = this.physics.add.sprite(100,450, 'player').setImmovable(false);
     //Criar inimigo
     enemy = this.physics.add.sprite(700, 450, 'enemy');
 
+
+
     //Criar paredes
-    parede1 = this.physics.add.sprite(500, 515, 'parede1');
-    parede2 = this.physics.add.sprite(400, 495, 'parede2');
-    parede3 = this.physics.add.sprite(300, 475, 'parede3');
+    var group = this.physics.add.group({
+        bounceX: 0,
+        bounceY: 0,
+        collideWorldBounds: false
+    });
+
+    var block1 = group.create(500, 475, 'parede3').setVelocity(-80, 0).setImmovable(false);
+    var block2 = group.create(400, 475, 'parede3').setVelocity(-80, 0).setImmovable(false);
+    var block3 = group.create(300, 475, 'parede3').setVelocity(-80, 0).setImmovable(false);
+    var block4 = group.create(200, 475, 'parede3').setVelocity(-80, 0).setImmovable(false);
+
+    this.physics.add.collider(group, group);
+
+
+    //adicionar ananases
+    points = this.physics.add.group({
+        key: 'point',
+        repeat: 5,
+        setXY: { x: 300, y: 0, stepX: 70}
+    });
+
+    points.children.iterate(function (child){
+
+        child.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8));
+    });
+
+
+
+    //TESTE Adiciona uma parede random na posição 500/515 com x tiles da imagem ajustavel na gameoptions (1 cena do documento)
+    //var parede = this.add.tileSprite(500, 515, Phaser.Math.Between(gameOptions.randomPixelWidth[0] ,gameOptions.randomPixelWidth[1]) , Phaser.Math.Between(gameOptions.randomPixelHeigth[0] ,gameOptions.randomPixelHeigth[1]) ,'parede1');
+
+    //this.physics.add.existing(parede, true);
+    //this.physics.add.collider(player, parede);
+
+
+
+
+
 
 //Teste
     //parede1.setPushable(false);
@@ -81,25 +135,45 @@ function create () {
 
     //Colisão do player com o ecrã
     player.setCollideWorldBounds(true);
+
     //bloco.setCollideWorldBounds(true);
     //Colisão player com as plataformas
     this.physics.add.collider(player, platforms);
     this.physics.add.collider(enemy, platforms);
     this.physics.add.collider(player, enemy);
-    this.physics.add.collider(player, parede1);
-    this.physics.add.collider(player, parede2);
-    this.physics.add.collider(player, parede3);
 
-    //Colisão paredes com inimigo
-    this.physics.add.collider(enemy, parede1);
-    this.physics.add.collider(enemy, parede2);
-    this.physics.add.collider(enemy, parede3);
+    //Colissão do grupo de paredes com platformas,player e inimigo
+    this.physics.add.collider(group, platforms);
+    this.physics.add.collider(group, player);
+    this.physics.add.collider(group, enemy);
 
-    //Colisão paredes com plataformas
-    this.physics.add.collider(platforms, parede1);
-    this.physics.add.collider(platforms, parede2);
-    this.physics.add.collider(platforms, parede3);
+    //Colisão dos ananases com tudo
+    this.physics.add.collider(points, platforms);
+    this.physics.add.collider(points, group);
 
+
+
+
+
+    //criar grupo de obstaculos
+    //let obstacle = this.add.group();
+    //obstacle.enableBody = true;
+    //TESTE PARA CRIAR FUNÇÃO QUE CRIASSE OBJETOS E QUE NO UPDATE "RECICLASSE"
+    // VER https://www.html5gamedevs.com/topic/37082-spawning-sprites-randomly-for-endless-runner/
+    //spawn obstaculos
+    //this.makesObstacles(4);
+
+
+    //function makesObstacles (numberOfHills){
+        //for(var i = 0; i < numberOfHills; i++){
+            //var hill = obstacle.create(((Math.random()*500)+100),((Math.random()*250) -20), "bloco", 'parede1');
+            //hill.body.immovable = true;
+            //hill.scale.x += -1;
+            //hill.body.gravity.y = 200;
+            //hill.body.velocity.x((Math.random()*-80)-20);
+            //hill.body.collideWorldBounds = true;
+        //}
+    //}
 
 
 
@@ -156,6 +230,40 @@ function create () {
     //Adicionar as teclas para os inputs do jogo
     cursors = this.input.keyboard.createCursorKeys();
 
+    //Verficar a sobreposição com os ananases
+    this.physics.add.overlap(player, points, collectPoints, null, this);
+
+    //Caso acha sobreposição
+    function collectPoints (player, points) {
+        points.disableBody(true, true);
+        // aumentar o score +1 por cada estrela apanhada
+        score += 1;
+        scoreText.setText('Score: ' + score);
+        if (points.countActive(true) === 0) {
+            nivel += 1;
+            nivelText.setText('Nivel: ' + nivel);
+            //iterate reativa todas as estrelas, caindo de novo do topo da tela
+            points.children.iterate(function (child) {
+
+                child.enableBody(true, child.x, 0, true, true);
+            });
+        }
+    }
+
+    //Tabela de pontuação
+    var score = 0;
+    var scoreText;
+
+    //Tabela de nível
+    var nivel = 1;
+    var nivelText;
+
+
+    scoreText = this.add.text(24, 24, 'score: 0', { fontSize: '48px', fill: '#0b5103' });
+    nivelText = this.add.text(550, 24, 'Nivel: 1', { fontSize: '48px', fill: '#0b5103' });
+
+
+
 
     this.physics.add.collider(player, enemy, hitEnemy, null, this);
 
@@ -176,6 +284,17 @@ function create () {
 
 function update () {
 
+    //TESTE PARA RECICLAR
+    //look for hills out of screen to recycle
+    //obstacle.forEach(function(item){
+        //if(item.x < -60){
+           // item.reset(((Math.random() * 900) + 750), ((Math.random() * 250) - 20));
+            //item.body.gravity.y = 200;
+            //item.body.velocity.x = ((Math.random() * -200) - 100);
+            //item.body.collideWorldBounds = true;
+        //}
+    //})
+
     if (cursors.left.isDown) {
 
         player.setVelocityX(-160);
@@ -192,7 +311,7 @@ function update () {
     }
 
     if (cursors.up.isDown && player.body.touching.down){
-        player.setVelocityY(-400);
+        player.setVelocityY(gameOptions.saltoForca);
         player.anims.play('jump', true);
     }
     else if (cursors.down.isDown){
@@ -206,8 +325,22 @@ function update () {
 
 
     //Movimento das paredes
-    parede1.setVelocityX(-80);
-    parede2.setVelocityX(-80);
-    parede3.setVelocityX(-80);
+    //parede.setVelocityX(-80);
+    //parede2.setVelocityX(-80);
+    //parede3.setVelocityX(-80);
+
+    //jump(){
+        //if(this.player.body.touching.down || (this.playerSaltos > 0 &amp;&amp; this.playerSaltos < gameOptions.jumps )){
+            //if(this.player.body.touching.down){
+              //  this.playerSaltos = 0;
+            //}
+            //this.player.setVelocityY(gameOptions.jumpForce *-1);
+           // this.playerSaltos++;
+
+            //cancela a animação no salto
+         //   this.player.anims.stop();
+       // }
+    //}
+
 
 }

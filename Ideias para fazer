@@ -53,7 +53,7 @@ Movimentação do inimigo //FEITO
 
 tentativa de game over falhada
 ----------------------------------------------------------------------------------------------------------------
-Commit 9:
+Commit 9 17/04 2h20:
 
 Adição de 3 tipos de parede já com movimento mas que o player ainda consegue empurrar.. Tentativa de adaptação de outro
 jogo falhada mas deixado no ficheiro "backup" algums funções que possam vir a ser úteis:
@@ -68,25 +68,46 @@ Temos:
 Erros do que temos feito a corrigir ou melhorar:
 -Falta asset para a plataforma
 -Tirar as bounds do player com os lados e criar função de gameOver ou morte do jogador(pode ser animação)
--Melhorar a colisão do player com o enimigo (Procurar forma, perguntar ao stor talvez)
--Arranjar maneira de o player não empurrar as plataformas
+-Melhorar a colisão do player com o enimigo (Procurar forma, perguntar ao stor talvez) --Ideia no commit10
+-Arranjar maneira de o player não empurrar as plataformas (tentei 2 ou 3 funções nada)
 
 O que falta fazer:
 -Adicionar as imagens das paredes num grupo que quando a imagem sai do ecrã volta a entrar na poll para ser
-enviada de novo...
--Fazer o mesmo para o inimigo e arranjar forma spawnar a cada x tempo
--Método de pontuação para se tornar um jogo, quer seja a matar inimigos ou a aparecer objetos (já adicionei o asset de 1)
+enviada de novo...(Uma especia de "reciclagem" função utilizada noutro jogo e com link para la em comentário
+-Fazer o mesmo para o inimigo e arranjar forma spawnar a cada x tempo (Ideia no commit 10)
+-Método de pontuação para se tornar um jogo, quer seja a matar inimigos ou a aparecer objetos - SEMI FEITO já temos pontuação
+e nivel!
 
 -Aumentar a velocidade do mesmo a partir de um certo tempo (? para ter dificuldade)
 
 Ideias que ainda gostava de implementar:
--Double jump (é fácil)
--Sistema de vidas( não sei se é possível sem scenes diferentes)
--Um menu para jogar ou sair do jogo(como no ultimo trabalho + uma vez é preciso adaptar para + scenes)
--Blocos que ao colidir matem o player(fácil se fizermos a função de adicionar no grupo)
+-Double jump (é fácil) --Resolver crash da função
+-Sistema de vidas( não sei se é possível sem scenes diferentes)//Deve ser para abortar
+-Um menu para jogar ou sair do jogo(como no ultimo trabalho + uma vez é preciso adaptar para + scenes)(Tutoriais do phaser)
+-Blocos que ao colidir matem o player(fácil se fizermos a função de adicionar no grupo)!!!!!!!
 -Blocos que quando o player bate neles saem "Moedas" pontos basicamente (fácil com a função pendente)
 -Uma nova forma de matar o player quer fosse um raio laser vindo do x ou do y, mas que previamente avisasse com o símbolo "!"
 tenho o asset (falta saber mexer com tempos)
+-----------------------------------------------------------------------------------------------------------------------
+Commit 10: 17/04 5h:20
 
+-Adicionado um grupo de paredes que se mexe e sai fora do mapa (ainda há colisão com o jogador e o mesmo consegue empurrar)
+-Adicionado 5 ananases que spawnam no meio do mapa tendo colisão já feita e a função de os apanhar, cada um dá 1
+ponto. Quando se apanha os 5 spawnam outros 5 e o nível passa para o 2
+
+Ideias que surgiram(mas foge um bocado ao infinite runner ou não):
+-Colocar o inimigo a trocar de direção sempre que bate em algum objeto (que ainda vao ser gerados), em vez de matar
+o player ao tocar empurrava para longe podendo até tirar o player do mapa. Com isto continua a existir a mecanica
+de poder matar o sapo, não temos que nos preocupar com os tamanhos dos assets para eles colidirem e ainda podemos
+para dificultar sempre que se apanha os 5 ananases aparece mais um sapo. Penso que é como as bombas no tutorial 1 apenas
+tinhamos de meter o sapo num grupo.
+
+-Meter o inimigo a apanhar as frutas, sempre que ele apanhasse uma perdiamos 1 ponto. Acho que é fácil e engraçada a
+mecanica
+
+-Função do duplo salto já feita, mas quando implementei começou a crashar e já estou exausto e farto disto hoje xd
+
+--Lista do commit 8 atualizada
+-----------------------------------------------------------------------------------------------------------------------
 
 
