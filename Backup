@@ -1,4 +1,60 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Trab1</title>
+    <style>body {margin: 0;padding: 0;}</style>
 
+    <script src="lib/phaser.js"></script>
+
+    <script src="src/game.js"></script>
+</head>
+<body>
+
+</body>
+</html>
+
+
+
+///////////////////////////////////////////////////////////////
+
+let gameOptions= {
+
+    //Velocidade das paredes
+    paredeSpeedRange: [80, 80],
+
+    // spawn range, how far should be the rightmost platform from the right edge
+    // before next platform spawns, in pixels
+    spawnRange: [80, 300],
+
+    // platform width range, in pixels
+    paredeWidthSize: [40, 120],
+
+    // a height range between rightmost platform and next platform to be spawned
+    paredeHeightRange: [0, 5],
+
+    // a scale to be multiplied by platformHeightRange
+    paredeHeightScale: 20,
+
+    // platform max and min height, as screen height ratio
+    paredeVerticalLimit: [0.4, 0.8],
+
+    // player gravity
+    playerGravity: 300,
+
+    // player jump force
+    jumpForce: 400,
+
+    // player starting X position
+    playerStartPosition: 100,
+
+    // consecutive jumps allowed
+    //jumps: 2,  PENSAR NISTO
+
+    // % of probability a coin appears on the platform
+    coinPercent: 25
+
+}
 
 var config = {
     type: Phaser.AUTO,
@@ -19,22 +75,15 @@ var config = {
 };
 
 
-let game = new Phaser.Game(config);
-let player;
-let background;
-let platform;
-let parede1;
-let parede2;
-let parede3;
-let enemy;
+var game = new Phaser.Game(config);
 
 function preload ()
 {
     this.load.image('background', 'assets/background/montanhas.png');
     this.load.image('platform', 'assets/Platform/platform.png');
-    this.load.image('parede1', 'assets/Blocos/parede1.png');
-    this.load.image('parede2', 'assets/Blocos/parede2.png');
-    this.load.image('parede3', 'assets/Blocos/parede3.png');
+    //this.load.image('parede1', 'assets/Blocos/parede1.png');
+    //this.load.image('parede2', 'assets/Blocos/parede2.png');
+    //this.load.image('parede3', 'assets/Blocos/parede3.png');
     //teste
     this.load.image("parede", "assets/Blocos/BRICKS.png");
     this.load.spritesheet('player', 'assets/Player/player.png', {
@@ -45,7 +94,13 @@ function preload ()
         frameWidth: 32,
         frameHeight: 32
     });
+    this.load.spritesheet('point', 'assets/Objects/Pineapple.png',{
+        frameWidth: 32,
+        frameHeight: 32
+    });
 
+    //teste
+    //this.load.image("bloco", "assets/Blocos/BRICKS.png");
 
 }
 
@@ -69,9 +124,9 @@ function create () {
     enemy = this.physics.add.sprite(700, 450, 'enemy');
 
     //Criar paredes
-    parede1 = this.physics.add.sprite(500, 515, 'parede1');
-    parede2 = this.physics.add.sprite(400, 495, 'parede2');
-    parede3 = this.physics.add.sprite(300, 475, 'parede3');
+   // parede1 = this.physics.add.sprite(500, 515, 'parede1');
+    //parede2 = this.physics.add.sprite(400, 495, 'parede2');
+    //parede3 = this.physics.add.sprite(300, 475, 'parede3');
 
 //Teste
     //parede1.setPushable(false);
@@ -86,19 +141,19 @@ function create () {
     this.physics.add.collider(player, platforms);
     this.physics.add.collider(enemy, platforms);
     this.physics.add.collider(player, enemy);
-    this.physics.add.collider(player, parede1);
-    this.physics.add.collider(player, parede2);
-    this.physics.add.collider(player, parede3);
+    //this.physics.add.collider(player, parede1);
+    //this.physics.add.collider(player, parede2);
+    //this.physics.add.collider(player, parede3);
 
     //Colisão paredes com inimigo
-    this.physics.add.collider(enemy, parede1);
-    this.physics.add.collider(enemy, parede2);
-    this.physics.add.collider(enemy, parede3);
+    //this.physics.add.collider(enemy, parede1);
+    //this.physics.add.collider(enemy, parede2);
+    //this.physics.add.collider(enemy, parede3);
 
     //Colisão paredes com plataformas
-    this.physics.add.collider(platforms, parede1);
-    this.physics.add.collider(platforms, parede2);
-    this.physics.add.collider(platforms, parede3);
+    //this.physics.add.collider(platforms, parede1);
+    //this.physics.add.collider(platforms, parede2);
+    //this.physics.add.collider(platforms, parede3);
 
 
 
@@ -206,8 +261,9 @@ function update () {
 
 
     //Movimento das paredes
-    parede1.setVelocityX(-80);
-    parede2.setVelocityX(-80);
-    parede3.setVelocityX(-80);
+    //parede1.setVelocityX(-80);
+    //parede2.setVelocityX(-80);
+    //parede3.setVelocityX(-80);
+
 
 }

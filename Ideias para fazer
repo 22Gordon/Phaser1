@@ -53,3 +53,40 @@ Movimentação do inimigo //FEITO
 
 tentativa de game over falhada
 ----------------------------------------------------------------------------------------------------------------
+Commit 9:
+
+Adição de 3 tipos de parede já com movimento mas que o player ainda consegue empurrar.. Tentativa de adaptação de outro
+jogo falhada mas deixado no ficheiro "backup" algums funções que possam vir a ser úteis:
+
+Ponto da situação:
+Temos:
+-Background.
+-Plataforma para o chão
+-Player animado e pronto a jogar(movimento e salto).
+-1 inimigo configurado animado
+
+Erros do que temos feito a corrigir ou melhorar:
+-Falta asset para a plataforma
+-Tirar as bounds do player com os lados e criar função de gameOver ou morte do jogador(pode ser animação)
+-Melhorar a colisão do player com o enimigo (Procurar forma, perguntar ao stor talvez)
+-Arranjar maneira de o player não empurrar as plataformas
+
+O que falta fazer:
+-Adicionar as imagens das paredes num grupo que quando a imagem sai do ecrã volta a entrar na poll para ser
+enviada de novo...
+-Fazer o mesmo para o inimigo e arranjar forma spawnar a cada x tempo
+-Método de pontuação para se tornar um jogo, quer seja a matar inimigos ou a aparecer objetos (já adicionei o asset de 1)
+
+-Aumentar a velocidade do mesmo a partir de um certo tempo (? para ter dificuldade)
+
+Ideias que ainda gostava de implementar:
+-Double jump (é fácil)
+-Sistema de vidas( não sei se é possível sem scenes diferentes)
+-Um menu para jogar ou sair do jogo(como no ultimo trabalho + uma vez é preciso adaptar para + scenes)
+-Blocos que ao colidir matem o player(fácil se fizermos a função de adicionar no grupo)
+-Blocos que quando o player bate neles saem "Moedas" pontos basicamente (fácil com a função pendente)
+-Uma nova forma de matar o player quer fosse um raio laser vindo do x ou do y, mas que previamente avisasse com o símbolo "!"
+tenho o asset (falta saber mexer com tempos)
+
+
+

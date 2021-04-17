@@ -75667,8 +75667,8 @@ module.exports = DOMContentLoaded;
  * @function Phaser.Math.Between
  * @since 3.0.0
  *
- * @param {integer} min - [description]
- * @param {integer} max - [description]
+ * @param {number} min - [description]
+ * @param {number} max - [description]
  *
  * @return {integer} [description]
  */

@@ -1,0 +1,331 @@
+let game;
+let gameOptions= {
+
+    //Velocidade das paredes
+    paredeSpeedRange: [80, 80],
+
+    // spawn range, how far should be the rightmost platform from the right edge
+    // before next platform spawns, in pixels
+    spawnRange: [80, 300],
+
+    // platform width range, in pixels
+    paredeWidthSize: [40, 120],
+
+    // a height range between rightmost platform and next platform to be spawned
+    paredeHeightRange: [0, 5],
+
+    // a scale to be multiplied by platformHeightRange
+    paredeHeightScale: 20,
+
+    // platform max and min height, as screen height ratio
+    paredeVerticalLimit: [0.4, 0.8],
+
+    // player gravity
+    playerGravity: 300,
+
+    // player jump force
+    jumpForce: 400,
+
+    // player starting X position
+    playerStartPosition: 100,
+
+    // consecutive jumps allowed
+    jumps: 2,
+
+    // % of probability a coin appears on the platform
+    pointPercent: 25
+
+}
+window.onload = function() {
+
+    let config = {
+        type: Phaser.AUTO,
+        width: 800,
+        height: 600,
+        scene: [preloadGame, playGame],
+        backgroundColor: 0x0c88c7,
+        physics: {
+            default: "arcade"
+        }
+    }
+
+    game = new Phaser.Game(config);
+    window.focus();
+
+}
+
+//preloadGame scene
+class preloadGame extends Phaser.Scene {
+    constructor() {
+        super("PreloadGame");
+    }
+
+    preload() {
+
+        //Adiciona a imagem para a plataforma do chão
+        this.load.image('platform', 'assets/Platform/platform.png');
+
+        //teste das paredes na vertical em vez de aparecer plataformas
+        this.load.image("parede", "assets/Blocos/BRICKS.png");
+
+        //Adiciona a spritesheet do player
+        this.load.spritesheet('player', 'assets/Player/player.png', {
+            frameWidth: 32,
+            frameHeight: 32
+        });
+
+
+        //Adiciona a spritesheet do ananas que serve de pontos
+        this.load.spritesheet('point', 'assets/Objects/Pineapple.png', {
+            frameWidth: 32,
+            frameHeight: 32
+        });
+
+
+    }
+
+    create() {
+
+
+        //Animações do player
+        this.anims.create({
+            key: 'right',
+            frames: this.anims.generateFrameNumbers('player', {start: 23, end: 34}),
+            frameRate: 10,
+            repeat: -1
+        });
+
+        this.anims.create({
+            key: 'left',
+            frames: this.anims.generateFrameNumbers('player', {start: 11, end: 22}),
+            frameRate: 10,
+            repeat: -1
+        });
+
+        this.anims.create({
+            key: 'idle',
+            frames: this.anims.generateFrameNumbers('player', {start: 0, end: 10}),
+            frameRate: 10,
+            repeat: -1
+        });
+
+        this.anims.create({
+            key: 'jump',
+            frames: [{key: 'player', frame: 35}],
+            frameRate: 10,
+            repeat: -1
+        })
+
+
+        //Animações do ananás
+        this.anims.create({
+            key: "move",
+            frames: this.anims.generateFrameNumbers("point", {start: 0, end: 16}),
+            frameRate: 15,
+            repeat: -1
+        });
+
+        this.scene.start("PlayGame");
+    }
+}
+
+    //playGame scene
+
+    class playGame extends Phaser.Scene{
+        platforms;
+    constructor() {
+        super("PlayGame");
+    }
+
+    create(){
+
+        //Contador das paredes adicionadas
+        this.addedParedes = 0;
+
+        //Grupo com todas as paredes ativas
+        this.paredesGroup = this.add.group({
+
+            //Quando uma parece é removida adicionamos ao conjunto novamente
+            removeCallback: function (parede){
+                parede.scene.paredeConjunto.add(parede)
+            }
+        });
+
+        //Conjunto de paredes
+        this.paredeConjunto = this.add.group({
+
+            //Uma vez removida a parede do conjunto é adicionada de novo às paredes ativas
+            removeCallback: function (parede){
+                parede.scene.paredesGroup.add(parede)
+            }
+        });
+
+        //Grupo com todos os ananases ativos
+        this.pointGroup = this.add.group({
+
+            //Uma vez que o ananas é removido, é adicionado ao conjunto
+            removeCallback: function (point){
+                point.scene.pointConjunto.add(point)
+            }
+        });
+
+        //Conjunto dos ananases
+        this.pointConjunto = this.add.group({
+
+            //Uma vez que o ananas é removido do conjunto é adicionado ao grupo dos ativos
+            removeCallback: function (point){
+                point.scene.pointGroup.add(point)
+            }
+        });
+
+        //numero de saltos consecutivos feitos pelo player
+        this.playerSaltos = 0;
+
+
+        //Criar plataformas
+        this.platforms = this.physics.add.staticGroup();
+
+        //Criar o chão
+        this.platforms.create(400, 568, 'platform').setScale(2).refreshBody();
+
+        //Criar paredes ATENÇÃO A ESTA para mudar
+        this.addParedes(game.config.width, game.config.width /2, game.config.height * gameOptions.paredeVerticalLimit[1]);
+
+        //Adicionar o jogador
+        this.player = this.physics.add.sprite(gameOptions.playerStartPosition, 450, "player");
+        this.player.setGravityY(gameOptions.playerGravity);
+
+        //colisão do player com a plataforma do chão
+        this.physics.add.collider(this.player, this.platforms);
+
+        // Colisões entre o player e o grupo das paredes
+        this.physics.add.collider(this.player, this.paredesGroup, function(){
+        },null, this);
+
+        //Colisões entre o player e o grupo de ananases
+        this.physics.add.overlap(this.player, this.pointGroup, function(player, point){
+            this.tweens.add({
+                targets: point,
+                y: point - 100,  //ERRO AQUI
+                alpha:0,
+                duration:800,
+                ease: "Cubic.easeOut",
+                callbackScope:this,
+                onComplete: function(){
+                    this.pointGroup.killAndHide(point);
+                    this.pointGroup.remove(point);
+                }
+            });
+        }, null, this);
+
+        //Ver os inputs
+        this.input.on("pointerdown", this.jump, this);
+
+    }
+
+    //A essencia do jogo: paredes sao adicionadas do conjunto ou criadas a voar
+
+        addParedes(paredeWidth, posX, posY){
+            this.addedParedes ++;
+            let parede;
+            if(this.paredeConjunto.getLength()){
+                parede = this.paredeConjunto.getFirst();
+                parede.x = posX;
+                parede.y = posY;
+                parede.active = true;
+                parede.visible = true;
+                this.paredeConjunto.remove(parede);
+                let newRatio =  paredeWidth / parede.displayWidth;
+                parede.displayWidth = paredeWidth;
+                parede.tileScaleX = 1 / parede.scaleX;
+            }
+            else{
+                parede = this.add.tileSprite(posX, posY, paredeWidth, 32, "parede");
+                this.physics.add.existing(parede);
+                parede.body.setImmovable(true);
+                parede.body.setVelocityX(Phaser.Math.Between(gameOptions.paredeSpeedRange[0], gameOptions.paredeSpeedRange[1])* -1);
+                this.paredesGroup.add(parede);
+            }
+            this.nextParedeDistance = Phaser.Math.Between(gameOptions.spawnRange[0], gameOptions.spawnRange[1]);
+
+            // Ananases por cima das paredes
+            if(this.addedParedes > 1){
+                if(Phaser.Math.Between(1, 100) <= gameOptions.pointPercent){
+                    if(this.pointConjunto.getLength()){
+                        let point = this.pointConjunto.getFirst();
+                        point.x = posX;
+                        point.y = posY - 96;
+                        point.alpha = 1;
+                        point.active = true;
+                        point.visible = true;
+                        this.pointConjunto.remove(point);
+                    }
+                }
+            }
+        }
+
+        //O jogador apenas salta quando estiver no chão, ou se estiver no ar caso tenha saltos de sobra
+
+        jump(){
+            if(this.player.body.touching.down || (this.playerSaltos > 0 &amp;&amp; this.playerSaltos < gameOptions.jumps )){
+                if(this.player.body.touching.down){
+                    this.playerSaltos = 0;
+                }
+                this.player.setVelocityY(gameOptions.jumpForce *-1);
+                this.playerSaltos++;
+
+                //cancela a animação no salto
+                this.player.anims.stop();
+            }
+        }
+
+        update(){
+
+            //Fim do jogo
+            if(this.player.y > game.config.height){
+                this.scene.start("PlayGame");
+            }
+            this.player.x = gameOptions.playerStartPosition;
+
+            //Reciclagem de paredes
+            let minDistance = game.config.width;
+            let rightmostParedeHeight = 0;
+            this.paredesGroup.getChildren().forEach(function(parede){
+                let paredesDistance = game.config.width - parede.x - parede.displayWidth /2;
+                if(paredesDistance < paredesDistance){
+                    minDistance = paredesDistance;
+                    rightmostParedeHeight = parede.y;
+                }
+                if(parede.x < - parede.displayWidth / 2){
+                    this.paredesGroup.killAndHide(parede);
+                    this.paredesGroup.remove(parede);
+                }
+            }, this);
+
+            //Reciclagem de ananases
+            this.pointGroup.getChildren().forEach(function (point){
+                if(point.x < - point.displayWidth / 2){
+                    this.pointGroup.killAndHide(point);
+                    this.pointGroup.remove(point);
+                }
+            }, this);
+
+            //Adicionar novas paredes
+
+            if(minDistance > this.nextParedeDistance){
+                let nextParedeWidth = Phaser.Math.Between(gameOptions.paredeWidthSize[0], gameOptions.paredeWidthSize[1]);
+                let paredeRandomHeight = gameOptions.paredeHeightScale * Phaser.Math.Between(gameOptions.paredeHeightRange[0], gameOptions.paredeHeightRange[1]);
+                let nextParedeGap = rightmostParedeHeight + paredeRandomHeight;
+                let minParedeHeight = game.config.height * gameOptions.paredeVerticalLimit[0];
+                let maxParedeHeight = game.config.height * gameOptions.paredeVerticalLimit[1];
+                let nextParedeHeight = Phaser.Math.Clamp(nextParedeGap, minParedeHeight, maxParedeHeight);
+                this.addParedes(nextParedeWidth, game.config.width + nextParedeWidth / 2, nextParedeHeight);
+            }
+        }
+
+    }
+
+
+
+
+
