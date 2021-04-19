@@ -257,8 +257,8 @@ function create () {
     var nivelText;
 
 
-    scoreText = this.add.text(24, 24, 'score: 0', { fontSize: '48px', fill: '#0b5103' });
-    nivelText = this.add.text(550, 24, 'Nivel: 1', { fontSize: '48px', fill: '#0b5103' });
+    scoreText = this.add.text(24, 24, 'score: 0', { fontSize: '25px', fill: '#0b5103' });
+    nivelText = this.add.text(550, 24, 'Nivel: 1', { fontSize: '25px', fill: '#0b5103' });
 
 
 
