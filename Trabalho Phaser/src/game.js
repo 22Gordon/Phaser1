@@ -37,8 +37,7 @@ let platform;
 let enemy;
 let point;
 
-function preload ()
-{
+function preload () {
     this.load.image('background', 'assets/background/montanhas.png');
     this.load.image('platform', 'assets/Platform/platform.png');
     this.load.image('parede1', 'assets/Blocos/parede1.png');
@@ -55,10 +54,7 @@ function preload ()
         frameHeight: 32
     });
 
-    this.load.spritesheet('point', 'assets/Objects/Pineapple.png',{
-        frameWidth: 32,
-        frameHeight: 32
-    });
+    this.load.image('point', 'assets/Objects/ananas_12x17.png',);
     //teste
     this.load.image("bloco", "assets/Blocos/BRICKS.png");
 
@@ -102,10 +98,14 @@ function create () {
         collideWorldBounds: false
     });
 
-    var block1 = group.create(500, 475, 'parede3').setVelocity(-80, 0).setImmovable(false);
-    var block2 = group.create(400, 475, 'parede3').setVelocity(-80, 0).setImmovable(false);
-    var block3 = group.create(300, 475, 'parede3').setVelocity(-80, 0).setImmovable(false);
-    var block4 = group.create(200, 475, 'parede3').setVelocity(-80, 0).setImmovable(false);
+    var block1 = group.create(500, 475, 'parede3');
+    block1.setVelocity(-80, 0).setImmovable(false);
+    var block2 = group.create(400, 475, 'parede3');
+    block2.setVelocity(-80, 0).setImmovable(false);
+    var block3 = group.create(300, 475, 'parede3');
+    block3.setVelocity(-80, 0).setImmovable(false);
+    var block4 = group.create(200, 475, 'parede3');
+    block4.setVelocity(-80, 0).setImmovable(false);
 
     this.physics.add.collider(group, group);
 
@@ -118,7 +118,6 @@ function create () {
     });
 
     points.children.iterate(function (child){
-
         child.setBounceY(Phaser.Math.FloatBetween(0.1, 0.4));
     });
 
@@ -200,14 +199,6 @@ function create () {
         repeat: -1
     });
 
-    //Animações do ananás
-    this.anims.create({
-        key:"move",
-        frames: this.anims.generateFrameNumbers("point", {start:0, end:16}),
-        frameRate:15,
-        repeat:-1
-    });
-
     //Colisão do player com o ecrã
     player.setCollideWorldBounds(true);
 
@@ -221,27 +212,16 @@ function create () {
     this.physics.add.collider(group, platforms);
     this.physics.add.collider(group, player);
 
-    //Colisão dos ananases com o chão
+    //Colisão dos ananases com o chão e com o player
     this.physics.add.collider(points, platforms);
-
-    //Verficar a sobreposição com os ananases
     this.physics.add.overlap(player, points, collectPoints, null, this);
 
     scoreText = this.add.text(24, 24, 'score: 0', { fontSize: '25px', fill: '#0b5103' });
     nivelText = this.add.text(550, 24, 'Nivel: 1', { fontSize: '25px', fill: '#0b5103' });
 
-    this.physics.add.collider(player, enemy, hitEnemy, null, this);
 }
 
-//Caso o jogador toque nas bombas
-function hitEnemy (player, bomb){
-    this.physics.pause();
-    player.setTint(0xff0000);
-    player.anims.play('idle');
-    gameOver = true;
-}
-
-//Caso acha sobreposição
+//Caso haja sobreposição
 function collectPoints (player, points) {
     points.disableBody(true, true);
     // aumentar o score +1 por cada estrela apanhada
@@ -274,12 +254,10 @@ function update () {
     //})
 
     if (cursors.left.isDown) {
-
         player.setVelocityX(-160);
         player.anims.play('left', true);
     }
     else if (cursors.right.isDown){
-
         player.setVelocityX(160);
         player.anims.play('right', true);
     }
@@ -303,9 +281,6 @@ function update () {
 
 
     //Movimento das paredes
-    //parede.setVelocityX(-80);
-    //parede2.setVelocityX(-80);
-    //parede3.setVelocityX(-80);
 
     //jump(){
         //if(this.player.body.touching.down || (this.playerSaltos > 0 &amp;&amp; this.playerSaltos < gameOptions.jumps )){
