@@ -66,6 +66,14 @@ function preload ()
 
 }
 
+//Tabela de pontuação
+var score = 0;
+var scoreText;
+
+//Tabela de nível
+var nivel = 1;
+var nivelText;
+
 function create () {
 
     // Criar o background
@@ -132,27 +140,6 @@ function create () {
     //parede2.setPushable(false);
     //parede3.setPushable(false);
 
-
-    //Colisão do player com o ecrã
-    player.setCollideWorldBounds(true);
-
-    //bloco.setCollideWorldBounds(true);
-    //Colisão player com as plataformas
-    this.physics.add.collider(player, platforms);
-    this.physics.add.collider(enemy, platforms);
-    this.physics.add.collider(player, enemy);
-
-    //Colissão do grupo de paredes com platformas e player
-    this.physics.add.collider(group, platforms);
-    this.physics.add.collider(group, player);
-
-    //Colisão dos ananases com o chão
-    this.physics.add.collider(points, platforms);
-
-
-
-
-
     //criar grupo de obstaculos
     //let obstacle = this.add.group();
     //obstacle.enableBody = true;
@@ -160,7 +147,6 @@ function create () {
     // VER https://www.html5gamedevs.com/topic/37082-spawning-sprites-randomly-for-endless-runner/
     //spawn obstaculos
     //this.makesObstacles(4);
-
 
     //function makesObstacles (numberOfHills){
         //for(var i = 0; i < numberOfHills; i++){
@@ -172,9 +158,6 @@ function create () {
             //hill.body.collideWorldBounds = true;
         //}
     //}
-
-
-
 
     //Gravidade a que o player cai
 
@@ -225,62 +208,59 @@ function create () {
         repeat:-1
     });
 
-    //Adicionar as teclas para os inputs do jogo
-    cursors = this.input.keyboard.createCursorKeys();
+    //Colisão do player com o ecrã
+    player.setCollideWorldBounds(true);
+
+    //bloco.setCollideWorldBounds(true);
+    //Colisão player com as plataformas
+    this.physics.add.collider(player, platforms);
+    this.physics.add.collider(enemy, platforms);
+    this.physics.add.collider(player, enemy);
+
+    //Colissão do grupo de paredes com platformas e player
+    this.physics.add.collider(group, platforms);
+    this.physics.add.collider(group, player);
+
+    //Colisão dos ananases com o chão
+    this.physics.add.collider(points, platforms);
 
     //Verficar a sobreposição com os ananases
     this.physics.add.overlap(player, points, collectPoints, null, this);
 
-    //Caso acha sobreposição
-    function collectPoints (player, points) {
-        points.disableBody(true, true);
-        // aumentar o score +1 por cada estrela apanhada
-        score += 1;
-        scoreText.setText('Score: ' + score);
-        if (points.countActive(true) === 0) {
-            nivel += 1;
-            nivelText.setText('Nivel: ' + nivel);
-            //iterate reativa todas as estrelas, caindo de novo do topo da tela
-            points.children.iterate(function (child) {
-
-                child.enableBody(true, child.x, 0, true, true);
-            });
-        }
-    }
-
-    //Tabela de pontuação
-    var score = 0;
-    var scoreText;
-
-    //Tabela de nível
-    var nivel = 1;
-    var nivelText;
-
-
     scoreText = this.add.text(24, 24, 'score: 0', { fontSize: '25px', fill: '#0b5103' });
     nivelText = this.add.text(550, 24, 'Nivel: 1', { fontSize: '25px', fill: '#0b5103' });
 
-
-
-
     this.physics.add.collider(player, enemy, hitEnemy, null, this);
+}
 
-    //Caso o jogador toque nas bombas
+//Caso o jogador toque nas bombas
+function hitEnemy (player, bomb){
+    this.physics.pause();
+    player.setTint(0xff0000);
+    player.anims.play('idle');
+    gameOver = true;
+}
 
-    function hitEnemy (player, bomb){
-
-        this.physics.pause();
-
-        player.setTint(0xff0000);
-
-        player.anims.play('idle');
-
-        gameOver = true;
+//Caso acha sobreposição
+function collectPoints (player, points) {
+    points.disableBody(true, true);
+    // aumentar o score +1 por cada estrela apanhada
+    score += 1;
+    scoreText.setText('Score: ' + score);
+    if (points.countActive(true) === 0) {
+        nivel += 1;
+        nivelText.setText('Nivel: ' + nivel);
+        //iterate reativa todas as estrelas, caindo de novo do topo da tela
+        points.children.iterate(function (child) {
+            child.enableBody(true, child.x, 0, true, true);
+        });
     }
-
 }
 
 function update () {
+
+    //Adicionar as teclas para os inputs do jogo
+    cursors = this.input.keyboard.createCursorKeys();
 
     //TESTE PARA RECICLAR
     //look for hills out of screen to recycle
