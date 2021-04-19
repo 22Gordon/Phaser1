@@ -111,7 +111,7 @@ function create () {
 
     points.children.iterate(function (child){
 
-        child.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8));
+        child.setBounceY(Phaser.Math.FloatBetween(0.1, 0.4));
     });
 
 
@@ -142,14 +142,12 @@ function create () {
     this.physics.add.collider(enemy, platforms);
     this.physics.add.collider(player, enemy);
 
-    //Colissão do grupo de paredes com platformas,player e inimigo
+    //Colissão do grupo de paredes com platformas e player
     this.physics.add.collider(group, platforms);
     this.physics.add.collider(group, player);
-    this.physics.add.collider(group, enemy);
 
-    //Colisão dos ananases com tudo
+    //Colisão dos ananases com o chão
     this.physics.add.collider(points, platforms);
-    this.physics.add.collider(points, group);
 
 
 
