@@ -8,7 +8,13 @@ let gameOptions= {
     xPoints: [50, 400],
 
     //x entre os annases
-    xEntre: [70, 100]
+    xEntre: [70, 100],
+
+    //vidas do jogor
+    vidas: 3,
+
+    //velocidade do inimigo
+    enemyVelocity: -80
 
 }
 
@@ -42,10 +48,9 @@ function preload () {
     this.load.image('background', 'assets/background/montanhas.png');
     this.load.image('platform', 'assets/Platform/platform.png');
     this.load.image('parede1', 'assets/Blocos/parede1.png');
+    this.load.image('Ball', 'assets/Objects/Spiked Ball.png');
     //this.load.image('parede2', 'assets/Blocos/parede2.png');
     //this.load.image('parede3', 'assets/Blocos/parede3.png');
-    //teste
-
     this.load.spritesheet('player', 'assets/Player/player.png', {
         frameWidth: 32,
         frameHeight: 32
@@ -68,8 +73,12 @@ var score = 0;
 var scoreText;
 
 //Tabela de nível
-//var nivel = 1;
-//var nivelText;
+var nivel = 1;
+var nivelText;
+
+//Vidas
+var vidas = gameOptions.vidas;
+var vidasText;
 
 
 function create () {
@@ -87,7 +96,9 @@ function create () {
     platforms.create(400, 568, 'platform').setScale(2).refreshBody();
 
     //Criar inimigo
+
     enemy = this.physics.add.sprite(700, 450, 'enemy');
+
 
     //Criar o player
     player = this.physics.add.sprite(100,450, 'player').setImmovable(false);
@@ -135,49 +146,25 @@ function create () {
         repeat: -1
     });
 
+
     //adicionar ananases
-    let points = this.physics.add.group({
+    points = this.physics.add.group({
         key: 'point',
         repeat: 4,
         setXY: {x: Phaser.Math.Between(gameOptions.xPoints[0] ,gameOptions.xPoints[1]), y: 0, stepX: Phaser.Math.Between(gameOptions.xEntre[0] ,gameOptions.xEntre[1])}
+
     });
 
     points.children.iterate(function (child){
         child.setBounceY(Phaser.Math.FloatBetween(0.1, 0.4));
     });
 
-    //Adiciona as paredes?
-    let paredes = this.physics.add.group();
-
-    function makeParedes () {
-        //Remover todos os blocos do grupo
-        this.paredes.removeAll();
-        var alturaDaParede = game.rnd.integerInRange(2, 6);
-        for (var i = 0; i < alturaDaParede; i++){
-            var bloco = game.add.image(500, -i * 32, "parede1");
-            this.paredes.add(bloco);
-        }
-        this.paredes.x = game.width - this.paredes.width
-        this.paredes.y = this.platforms.y - 50;
-        //LOOP
-        this.paredes.forEach(function (bloco){
-            //enable physics
-            game.physics.enable(bloco, Phaser.Physics.ARCADE);
-            //Velocidade do x para -80
-            bloco.body.velocity.x = -80;
-            //Alguma gravidade
-            bloco.body.gravity = 4;
-            //gravidade com o jogador
-            block.body.bounce.set(1,1);
-
-        });
-    }
 
     //Criar paredes
-   // var group = this.physics.add.group({
-       // bounceX: 0,
-        //bounceY: 0,
-        //collideWorldBounds: false
+    // var group = this.physics.add.group({
+    // bounceX: 0,
+    //bounceY: 0,
+    //collideWorldBounds: false
     //});
 
     //var block1 = group.create(500, 475, 'parede3');
@@ -216,20 +203,37 @@ function create () {
 
 
     //Caso haja sobreposição
-    function collectPoints (player, points) {
-        points.disableBody(true, true);
+    function collectPoints (player, point) {
+        point.disableBody(true, true);
         // aumentar o score +1 por cada estrela apanhada
         score += 1;
         scoreText.setText('Score: ' + score);
 
-        //Aumentar o nível quando todos os ananases são apanhados
-        //if (points.countActive(true) === 0) {
-            //iterate reativa todas as estrelas, caindo de novo do topo da tela
-           //points.children.iterate(function (child) {
-             //child.enableBody(true, child.x, 0, true, true);
-            //});
-        //}
+
+        if (points.countActive(true) === 0){
+            nivel += 1;
+            nivelText.setText('Nivel: ' + nivel);
+            //iterate reativa todas os ananases, caindo de novo do topo da tela
+            points.children.iterate(function (child){
+
+                child.enableBody(true, child.x, 0, true, true);
+            });
+
+            // Escolher uma coordenada x aleatória, do lado oposto ao player
+            var x = (player.x < 400) ? Phaser.Math.Between(400, 800) : Phaser.Math.Between(0, 400);
+
+            //Criar a bomba
+            var ball = balls.create(x, 16, 'Ball');
+            ball.setBounce(1);
+            ball.setCollideWorldBounds(true);
+            ball.setVelocity(Phaser.Math.Between(-200,200), 20);
+        }
     }
+
+    balls = this.physics.add.group();
+    this.physics.add.collider(balls, platforms);
+
+
 
     //Caso haja sobreposição com o inimigo
     function losePoints (enemy, points) {
@@ -241,10 +245,30 @@ function create () {
 
 
     }
+    scoreText = this.add.text(24, 24, 'Score: 0', { fontSize: '25px', fill: '#0b5103' });
+    nivelText = this.add.text(550, 24, 'Nivel: 1', { fontSize: '25px', fill: '#0b5103' });
+    vidasText = this.add.text(24, 64, 'Vidas: 3', { fontSize: '25px', fill: '#ef0606' });
+
+    this.physics.add.collider(player,balls, hitBalls, null, this);
+
+    //Caso o jogador toque nas bolas
+
+    //AINDA ESTA A DAR ERRO
+
+    function hitBalls (player, ball){
+
+        if(vidas !== 0) {
+            vidas -= 1;
+            vidasText.setText('Vidas: ' + vidas);
+        }
+        else{
+            this.physics.pause();
+            player.setTint(0xff0000);
+        }
+
+    }
 
 
-    scoreText = this.add.text(24, 24, 'score: 0', { fontSize: '25px', fill: '#0b5103' });
-    //nivelText = this.add.text(550, 24, 'Nivel: 1', { fontSize: '25px', fill: '#0b5103' });
 
 
 }
@@ -273,28 +297,38 @@ function update () {
     }
 
     //Movimento e animação do inimigo
-    enemy.setVelocityX(-80);
+    enemy.setVelocityX(gameOptions.enemyVelocity);
     enemy.anims.play('run', true);
 
-    //Paredes
 
-    //this.grupoBolocos.x--;
+    //TENTATIVA DE MUDAR DE LUGAR
+    if(enemy.x <= 100 && enemy.enemyVelocity < 0){
+        enemy.enemyVelocity *=-1;
+        enemy.flipX = true;
+    }
+    else if(enemy.x >= 700 && enemy.enemyVelocity > 0){
+        enemy.enemyVelocity *=-1;
+        enemy.flipX = true;
+    }
+
+
+
 
 
 
     //Movimento das paredes
 
     //jump(){
-        //if(this.player.body.touching.down || (this.playerSaltos > 0 &amp;&amp; this.playerSaltos < gameOptions.jumps )){
-            //if(this.player.body.touching.down){
-              //  this.playerSaltos = 0;
-            //}
-            //this.player.setVelocityY(gameOptions.jumpForce *-1);
-           // this.playerSaltos++;
+    //if(this.player.body.touching.down || (this.playerSaltos > 0 &amp;&amp; this.playerSaltos < gameOptions.jumps )){
+    //if(this.player.body.touching.down){
+    //  this.playerSaltos = 0;
+    //}
+    //this.player.setVelocityY(gameOptions.jumpForce *-1);
+    // this.playerSaltos++;
 
-            //cancela a animação no salto
-         //   this.player.anims.stop();
-       // }
+    //cancela a animação no salto
+    //   this.player.anims.stop();
+    // }
     //}
 
 

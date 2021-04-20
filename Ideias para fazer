@@ -95,6 +95,7 @@ Commit 10: 17/04 5h:20
 -Adicionado 5 ananases que spawnam no meio do mapa tendo colisão já feita e a função de os apanhar, cada um dá 1
 ponto. Quando se apanha os 5 spawnam outros 5 e o nível passa para o 2
 
+
 Ideias que surgiram(mas foge um bocado ao infinite runner ou não):
 -Colocar o inimigo a trocar de direção sempre que bate em algum objeto (que ainda vao ser gerados), em vez de matar
 o player ao tocar empurrava para longe podendo até tirar o player do mapa. Com isto continua a existir a mecanica
@@ -109,5 +110,46 @@ mecanica
 
 --Lista do commit 8 atualizada
 -----------------------------------------------------------------------------------------------------------------------
+Commit 12: 20/04 23:03
+-Corrigido função que conta os pontos e spawna mais ananases quando todos são apanhados.
+-Corrigido o nível a aumentar tanto como o score
+-Adicionado Bolas de espinhos que spawnam 1 conforme o nivel que aumenta
+-Tentativa de vidas (função por corrigir)
+-Tentativa de virar o inimigo (função por corrigir)
+-Horas e horas a tentar adicionar objetos e nada
+
+PONTO DE SITUAÇÃO:
+
+Ponto da situação:
+Temos:
+-Background.
+-Plataforma para o chão
+-Player animado e pronto a jogar(movimento e salto).
+-1 inimigo configurado animado(falta mudar de lado ao bater nas bounds)
+-Sistema de pontuação e níveis
+-Objetos a spawnar que matam o player
+-Ajustado algumas gameOptions e meter salto no inimigo (por causa de uma ideia)
+
+Erros do que temos feito a corrigir ou melhorar:
+-Falta asset para a plataforma
+-Tirar as bounds do player com os lados e criar função de gameOver ou morte do jogador(pode ser animação)
+-Melhorar o inimigo (mudar -lhe o movimento)
+-Corrigir a função de vidas se possível e a de multi jump
+-Em relação às bolas de espinho está muito identico ao tuturial 1 que fizemos. talvez arranjar forma de apenas
+spawnarem de x em x níveis
+
+O que falta fazer:
+-Função para spawnar um conjunto de paredes... O fundamental para o jogo estar pronto agora!
+-Explorar a mecanica da morte do inimigo e spawnar mais caso 1 morra (se possível adicionar pontos)
+
+
+Ideias que ainda gostava de implementar:
+-Um menu para jogar ou sair do jogo(como no ultimo trabalho + uma vez é preciso adaptar para + scenes)(Tutoriais do phaser)
+-Blocos que ao colidir matem o player(fácil se fizermos a função de adicionar no grupo)!!!!!!!
+-Blocos que quando o player bate neles saem "Moedas" pontos basicamente (fácil com a função pendente)
+
+Nova ideia!: Um objeto que ficasse no centro do mapa ou que andasse aleatoriamente que apenas ganhariamos pontos
+se conseguissemos que fosse o inimigo a apanhar (visto que o mesmo agora salta e podemos dar-lhe "boost" saltando
+por baixo.
 
 
