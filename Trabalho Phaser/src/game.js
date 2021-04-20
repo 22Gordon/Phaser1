@@ -1,13 +1,14 @@
 let gameOptions= {
 
-    //Parde de random pixels ate um ponto altura
-    randomPixelHeigth: [-32*3,96],
-    //Parde de random pixels ate um ponto largura
-    randomPixelWidth: [32, 96],
-    //Saltos dados
     saltos: 2,
     //Força do salto
-    saltoForca: -400
+    saltoForca: -400,
+
+    //x dos ananases
+    xPoints: [50, 400],
+
+    //x entre os annases
+    xEntre: [70, 100]
 
 }
 
@@ -29,20 +30,20 @@ var config = {
     }
 };
 
-
 let game = new Phaser.Game(config);
 let player;
 let background;
 let platform;
 let enemy;
 let point;
+let paredes;
 
 function preload () {
     this.load.image('background', 'assets/background/montanhas.png');
     this.load.image('platform', 'assets/Platform/platform.png');
     this.load.image('parede1', 'assets/Blocos/parede1.png');
     //this.load.image('parede2', 'assets/Blocos/parede2.png');
-    this.load.image('parede3', 'assets/Blocos/parede3.png');
+    //this.load.image('parede3', 'assets/Blocos/parede3.png');
     //teste
 
     this.load.spritesheet('player', 'assets/Player/player.png', {
@@ -67,8 +68,9 @@ var score = 0;
 var scoreText;
 
 //Tabela de nível
-var nivel = 1;
-var nivelText;
+//var nivel = 1;
+//var nivelText;
+
 
 function create () {
 
@@ -80,86 +82,17 @@ function create () {
     //Criar plataformas
     platforms = this.physics.add.staticGroup();
 
+
     //Criar o chão
     platforms.create(400, 568, 'platform').setScale(2).refreshBody();
 
-
-    //Criar o player
-    player = this.physics.add.sprite(100,450, 'player').setImmovable(false);
     //Criar inimigo
     enemy = this.physics.add.sprite(700, 450, 'enemy');
 
-
-
-    //Criar paredes
-    var group = this.physics.add.group({
-        bounceX: 0,
-        bounceY: 0,
-        collideWorldBounds: false
-    });
-
-    var block1 = group.create(500, 475, 'parede3');
-    block1.setVelocity(-80, 0).setImmovable(false);
-    var block2 = group.create(400, 475, 'parede3');
-    block2.setVelocity(-80, 0).setImmovable(false);
-    var block3 = group.create(300, 475, 'parede3');
-    block3.setVelocity(-80, 0).setImmovable(false);
-    var block4 = group.create(200, 475, 'parede3');
-    block4.setVelocity(-80, 0).setImmovable(false);
-
-    this.physics.add.collider(group, group);
-
-
-    //adicionar ananases
-    points = this.physics.add.group({
-        key: 'point',
-        repeat: 5,
-        setXY: { x: 300, y: 0, stepX: 70}
-    });
-
-    points.children.iterate(function (child){
-        child.setBounceY(Phaser.Math.FloatBetween(0.1, 0.4));
-    });
-
-
-
-    //TESTE Adiciona uma parede random na posição 500/515 com x tiles da imagem ajustavel na gameoptions (1 cena do documento)
-    //var parede = this.add.tileSprite(500, 515, Phaser.Math.Between(gameOptions.randomPixelWidth[0] ,gameOptions.randomPixelWidth[1]) , Phaser.Math.Between(gameOptions.randomPixelHeigth[0] ,gameOptions.randomPixelHeigth[1]) ,'parede1');
-
-    //this.physics.add.existing(parede, true);
-    //this.physics.add.collider(player, parede);
-
-
-
-
-
-
-//Teste
-    //parede1.setPushable(false);
-    //parede2.setPushable(false);
-    //parede3.setPushable(false);
-
-    //criar grupo de obstaculos
-    //let obstacle = this.add.group();
-    //obstacle.enableBody = true;
-    //TESTE PARA CRIAR FUNÇÃO QUE CRIASSE OBJETOS E QUE NO UPDATE "RECICLASSE"
-    // VER https://www.html5gamedevs.com/topic/37082-spawning-sprites-randomly-for-endless-runner/
-    //spawn obstaculos
-    //this.makesObstacles(4);
-
-    //function makesObstacles (numberOfHills){
-        //for(var i = 0; i < numberOfHills; i++){
-            //var hill = obstacle.create(((Math.random()*500)+100),((Math.random()*250) -20), "bloco", 'parede1');
-            //hill.body.immovable = true;
-            //hill.scale.x += -1;
-            //hill.body.gravity.y = 200;
-            //hill.body.velocity.x((Math.random()*-80)-20);
-            //hill.body.collideWorldBounds = true;
-        //}
-    //}
+    //Criar o player
+    player = this.physics.add.sprite(100,450, 'player').setImmovable(false);
 
     //Gravidade a que o player cai
-
     player.body.setGravityY(300);
 
     //Animações do player
@@ -191,6 +124,9 @@ function create () {
         repeat: -1
     })
 
+    //Adicionar as teclas para os inputs do jogo
+    cursors = this.input.keyboard.createCursorKeys();
+
     //Animação do inimigo
     this.anims.create({
         key: 'run',
@@ -199,59 +135,121 @@ function create () {
         repeat: -1
     });
 
+    //adicionar ananases
+    let points = this.physics.add.group({
+        key: 'point',
+        repeat: 4,
+        setXY: {x: Phaser.Math.Between(gameOptions.xPoints[0] ,gameOptions.xPoints[1]), y: 0, stepX: Phaser.Math.Between(gameOptions.xEntre[0] ,gameOptions.xEntre[1])}
+    });
+
+    points.children.iterate(function (child){
+        child.setBounceY(Phaser.Math.FloatBetween(0.1, 0.4));
+    });
+
+    //Adiciona as paredes?
+    let paredes = this.physics.add.group();
+
+    function makeParedes () {
+        //Remover todos os blocos do grupo
+        this.paredes.removeAll();
+        var alturaDaParede = game.rnd.integerInRange(2, 6);
+        for (var i = 0; i < alturaDaParede; i++){
+            var bloco = game.add.image(500, -i * 32, "parede1");
+            this.paredes.add(bloco);
+        }
+        this.paredes.x = game.width - this.paredes.width
+        this.paredes.y = this.platforms.y - 50;
+        //LOOP
+        this.paredes.forEach(function (bloco){
+            //enable physics
+            game.physics.enable(bloco, Phaser.Physics.ARCADE);
+            //Velocidade do x para -80
+            bloco.body.velocity.x = -80;
+            //Alguma gravidade
+            bloco.body.gravity = 4;
+            //gravidade com o jogador
+            block.body.bounce.set(1,1);
+
+        });
+    }
+
+    //Criar paredes
+   // var group = this.physics.add.group({
+       // bounceX: 0,
+        //bounceY: 0,
+        //collideWorldBounds: false
+    //});
+
+    //var block1 = group.create(500, 475, 'parede3');
+    //block1.setVelocity(-80, 0).setImmovable(false);
+    //var block2 = group.create(400, 475, 'parede3');
+    //block2.setVelocity(-80, 0).setImmovable(false);
+    //var block3 = group.create(300, 475, 'parede3');
+    //block3.setVelocity(-80, 0).setImmovable(false);
+    //var block4 = group.create(200, 475, 'parede3');
+    //block4.setVelocity(-80, 0).setImmovable(false);
+
+    //this.physics.add.collider(group, group);
+
+
+
     //Colisão do player com o ecrã
     player.setCollideWorldBounds(true);
+    enemy.setCollideWorldBounds(true);
 
-    //bloco.setCollideWorldBounds(true);
     //Colisão player com as plataformas
     this.physics.add.collider(player, platforms);
     this.physics.add.collider(enemy, platforms);
     this.physics.add.collider(player, enemy);
 
     //Colissão do grupo de paredes com platformas e player
-    this.physics.add.collider(group, platforms);
-    this.physics.add.collider(group, player);
+    //this.physics.add.collider(group, platforms);
+    //this.physics.add.collider(group, player);
 
     //Colisão dos ananases com o chão e com o player
     this.physics.add.collider(points, platforms);
+
+    //Verifica a sobreposição do player com os ananases
     this.physics.add.overlap(player, points, collectPoints, null, this);
+    this.physics.add.overlap(enemy, points, losePoints, null ,this);
+
+
+
+    //Caso haja sobreposição
+    function collectPoints (player, points) {
+        points.disableBody(true, true);
+        // aumentar o score +1 por cada estrela apanhada
+        score += 1;
+        scoreText.setText('Score: ' + score);
+
+        //Aumentar o nível quando todos os ananases são apanhados
+        //if (points.countActive(true) === 0) {
+            //iterate reativa todas as estrelas, caindo de novo do topo da tela
+           //points.children.iterate(function (child) {
+             //child.enableBody(true, child.x, 0, true, true);
+            //});
+        //}
+    }
+
+    //Caso haja sobreposição com o inimigo
+    function losePoints (enemy, points) {
+        points.disableBody(true, true);
+        if(score > 0){
+            score -= 1;
+            scoreText.setText('Score: ' + score);
+        }
+
+
+    }
+
 
     scoreText = this.add.text(24, 24, 'score: 0', { fontSize: '25px', fill: '#0b5103' });
-    nivelText = this.add.text(550, 24, 'Nivel: 1', { fontSize: '25px', fill: '#0b5103' });
+    //nivelText = this.add.text(550, 24, 'Nivel: 1', { fontSize: '25px', fill: '#0b5103' });
 
-}
 
-//Caso haja sobreposição
-function collectPoints (player, points) {
-    points.disableBody(true, true);
-    // aumentar o score +1 por cada estrela apanhada
-    score += 1;
-    scoreText.setText('Score: ' + score);
-    if (points.countActive(true) === 0) {
-        nivel += 1;
-        nivelText.setText('Nivel: ' + nivel);
-        //iterate reativa todas as estrelas, caindo de novo do topo da tela
-        points.children.iterate(function (child) {
-            child.enableBody(true, child.x, 0, true, true);
-        });
-    }
 }
 
 function update () {
-
-    //Adicionar as teclas para os inputs do jogo
-    cursors = this.input.keyboard.createCursorKeys();
-
-    //TESTE PARA RECICLAR
-    //look for hills out of screen to recycle
-    //obstacle.forEach(function(item){
-        //if(item.x < -60){
-           // item.reset(((Math.random() * 900) + 750), ((Math.random() * 250) - 20));
-            //item.body.gravity.y = 200;
-            //item.body.velocity.x = ((Math.random() * -200) - 100);
-            //item.body.collideWorldBounds = true;
-        //}
-    //})
 
     if (cursors.left.isDown) {
         player.setVelocityX(-160);
@@ -278,6 +276,10 @@ function update () {
     enemy.setVelocityX(-80);
     enemy.anims.play('run', true);
 
+    //Paredes
+
+    //this.grupoBolocos.x--;
+
 
 
     //Movimento das paredes
@@ -297,3 +299,7 @@ function update () {
 
 
 }
+
+
+
+

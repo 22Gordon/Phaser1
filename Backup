@@ -259,11 +259,67 @@ function update () {
     enemy.anims.play('run', true);
 
 
-
-    //Movimento das paredes
-    //parede1.setVelocityX(-80);
-    //parede2.setVelocityX(-80);
-    //parede3.setVelocityX(-80);
-
-
 }
+
+
+//TESTE
+
+   //função 1 parede
+    function addOneParede(x,y){
+        var parede = game.add.sprite(x,y,'parede1');
+
+        this.paredes.add(parede);
+
+        game.physics.arcade.enable(parede);
+
+        parede.body.velocity.x = -80;
+
+        parede.checkWorldBounds = true;
+        parede.outOfBoundsKill = true;
+    },
+
+    //Adicionar paredes
+    function addRowOfParedes() {
+        var altura = Math.floor(Math.random() *3) +1;
+
+        for(var i = altura; i > 0; i--){
+            this.addOneParede(799, 568 -(32 *i));
+        }
+    }
+
+
+    if(this.player.x < 0 || this.player.x > 0) {
+            this.restartGame();
+            }
+        },
+
+
+
+
+
+    //Movimento e animação do inimigo
+    enemy.setVelocityX(-80);
+    enemy.anims.play('run', true);
+
+    //função 1 parede
+    function addOneParede(x,y){
+        var parede = game.add.sprite(x,y,'parede1');
+
+        this.paredes.add(parede);
+
+        game.physics.arcade.enable(parede);
+
+        parede.body.velocity.x = -80;
+
+        parede.checkWorldBounds = true;
+        parede.outOfBoundsKill = true;
+    }
+
+    //Adicionar paredes
+    function addRowOfParedes() {
+        var altura = Math.floor(Math.random() *3) +1;
+
+        for(var i = altura; i > 0; i--){
+            this.addOneParede(799, 568 -(32 *i));
+        }
+    }
