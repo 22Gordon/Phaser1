@@ -1,5 +1,4 @@
 let gameOptions= {
-
     saltos: 2,
     //Força do salto
     saltoForca: -400,
@@ -15,7 +14,6 @@ let gameOptions= {
 
     //velocidade do inimigo
     enemyVelocity: -80
-
 }
 
 var config = {
@@ -42,15 +40,13 @@ let background;
 let platform;
 let enemy;
 let point;
-let paredes;
 
 function preload () {
     this.load.image('background', 'assets/background/montanhas.png');
     this.load.image('platform', 'assets/Platform/platform.png');
     this.load.image('parede1', 'assets/Blocos/parede1.png');
     this.load.image('Ball', 'assets/Objects/Spiked Ball.png');
-    //this.load.image('parede2', 'assets/Blocos/parede2.png');
-    //this.load.image('parede3', 'assets/Blocos/parede3.png');
+    this.load.image('wall', 'assets/Blocos/parede3.png');
     this.load.spritesheet('player', 'assets/Player/player.png', {
         frameWidth: 32,
         frameHeight: 32
@@ -59,13 +55,7 @@ function preload () {
         frameWidth: 32,
         frameHeight: 32
     });
-
     this.load.image('point', 'assets/Objects/ananas_12x17.png',);
-    //teste
-    this.load.image("bloco", "assets/Blocos/BRICKS.png");
-
-
-
 }
 
 //Tabela de pontuação
@@ -79,6 +69,9 @@ var nivelText;
 //Vidas
 var vidas = gameOptions.vidas;
 var vidasText;
+
+//Bombas
+var bombas = 0;
 
 
 function create () {
@@ -96,9 +89,7 @@ function create () {
     platforms.create(400, 568, 'platform').setScale(2).refreshBody();
 
     //Criar inimigo
-
     enemy = this.physics.add.sprite(700, 450, 'enemy');
-
 
     //Criar o player
     player = this.physics.add.sprite(100,450, 'player').setImmovable(false);
@@ -152,33 +143,11 @@ function create () {
         key: 'point',
         repeat: 4,
         setXY: {x: Phaser.Math.Between(gameOptions.xPoints[0] ,gameOptions.xPoints[1]), y: 0, stepX: Phaser.Math.Between(gameOptions.xEntre[0] ,gameOptions.xEntre[1])}
-
     });
 
     points.children.iterate(function (child){
         child.setBounceY(Phaser.Math.FloatBetween(0.1, 0.4));
     });
-
-
-    //Criar paredes
-    // var group = this.physics.add.group({
-    // bounceX: 0,
-    //bounceY: 0,
-    //collideWorldBounds: false
-    //});
-
-    //var block1 = group.create(500, 475, 'parede3');
-    //block1.setVelocity(-80, 0).setImmovable(false);
-    //var block2 = group.create(400, 475, 'parede3');
-    //block2.setVelocity(-80, 0).setImmovable(false);
-    //var block3 = group.create(300, 475, 'parede3');
-    //block3.setVelocity(-80, 0).setImmovable(false);
-    //var block4 = group.create(200, 475, 'parede3');
-    //block4.setVelocity(-80, 0).setImmovable(false);
-
-    //this.physics.add.collider(group, group);
-
-
 
     //Colisão do player com o ecrã
     player.setCollideWorldBounds(true);
@@ -189,10 +158,6 @@ function create () {
     this.physics.add.collider(enemy, platforms);
     this.physics.add.collider(player, enemy);
 
-    //Colissão do grupo de paredes com platformas e player
-    //this.physics.add.collider(group, platforms);
-    //this.physics.add.collider(group, player);
-
     //Colisão dos ananases com o chão e com o player
     this.physics.add.collider(points, platforms);
 
@@ -200,77 +165,75 @@ function create () {
     this.physics.add.overlap(player, points, collectPoints, null, this);
     this.physics.add.overlap(enemy, points, losePoints, null ,this);
 
-
-
-    //Caso haja sobreposição
-    function collectPoints (player, point) {
-        point.disableBody(true, true);
-        // aumentar o score +1 por cada estrela apanhada
-        score += 1;
-        scoreText.setText('Score: ' + score);
-
-
-        if (points.countActive(true) === 0){
-            nivel += 1;
-            nivelText.setText('Nivel: ' + nivel);
-            //iterate reativa todas os ananases, caindo de novo do topo da tela
-            points.children.iterate(function (child){
-
-                child.enableBody(true, child.x, 0, true, true);
-            });
-
-            // Escolher uma coordenada x aleatória, do lado oposto ao player
-            var x = (player.x < 400) ? Phaser.Math.Between(400, 800) : Phaser.Math.Between(0, 400);
-
-            //Criar a bomba
-            var ball = balls.create(x, 16, 'Ball');
-            ball.setBounce(1);
-            ball.setCollideWorldBounds(true);
-            ball.setVelocity(Phaser.Math.Between(-200,200), 20);
-        }
-    }
-
     balls = this.physics.add.group();
     this.physics.add.collider(balls, platforms);
 
-
-
-    //Caso haja sobreposição com o inimigo
-    function losePoints (enemy, points) {
-        points.disableBody(true, true);
-        if(score > 0){
-            score -= 1;
-            scoreText.setText('Score: ' + score);
-        }
-
-
-    }
     scoreText = this.add.text(24, 24, 'Score: 0', { fontSize: '25px', fill: '#0b5103' });
     nivelText = this.add.text(550, 24, 'Nivel: 1', { fontSize: '25px', fill: '#0b5103' });
     vidasText = this.add.text(24, 64, 'Vidas: 3', { fontSize: '25px', fill: '#ef0606' });
 
     this.physics.add.collider(player,balls, hitBalls, null, this);
 
-    //Caso o jogador toque nas bolas
+    walls = this.physics.add.group();
+    this.physics.add.collider(walls, platforms);
+    this.physics.add.collider(player, walls, hitWalls, null, this)
+    timedEvent = this.time.addEvent({ delay: 5000, callback: onEvent, callbackScope: this, loop: true });
+}
 
-    //AINDA ESTA A DAR ERRO
-
-    function hitBalls (player, ball){
-
-        if(vidas !== 0) {
-            vidas -= 1;
-            vidasText.setText('Vidas: ' + vidas);
+//Caso haja sobreposição
+function collectPoints (player, point) {
+    point.disableBody(true, true);
+    // aumentar o score +1 por cada estrela apanhada
+    score += 1;
+    scoreText.setText('Score: ' + score);
+    if (points.countActive(true) === 0){
+        nivel += 1;
+        nivelText.setText('Nivel: ' + nivel);
+        //iterate reativa todas os ananases, caindo de novo do topo da tela
+        points.children.iterate(function (child){
+            child.enableBody(true, child.x, 0, true, true);
+        });
+        if (nivel % 5 === 0){
+            // Escolher uma coordenada x aleatória, do lado oposto ao player
+            var x = (player.x < 400) ? Phaser.Math.Between(400, 800) : Phaser.Math.Between(0, 400);
+            //Criar a bomba
+            bombas += 1;
+            var ball = balls.create(x, 16, 'Ball');
+            ball.setBounce(1);
+            ball.setCollideWorldBounds(true);
+            ball.setVelocity(Phaser.Math.Between(-200,200), 20);
         }
-        else{
-            this.physics.pause();
-            player.setTint(0xff0000);
-        }
+    }
+}
 
+//Caso haja sobreposição com o inimigo
+function losePoints (enemy, points) {
+    points.disableBody(true, true);
+    if (score > 0){
+        score -= 1;
+        scoreText.setText('Score: ' + score);
+    }
+}
+
+function hitBalls (player, ball){
+
+    if(vidas !== 0) {
+        vidas -= 1;
+        vidasText.setText('Vidas: ' + vidas);
+    }
+    else{
+        this.physics.pause();
+        player.setTint(0xff0000);
     }
 
+}
 
-
-
+function hitWalls (player, wall)
+{
+    this.physics.pause();
+    player.setTint(0xff0000);
+    player.anims.play('turn');
+    gameOver = true;
 }
 
 function update () {
@@ -278,21 +241,18 @@ function update () {
     if (cursors.left.isDown) {
         player.setVelocityX(-160);
         player.anims.play('left', true);
-    }
-    else if (cursors.right.isDown){
+    } else if (cursors.right.isDown) {
         player.setVelocityX(160);
         player.anims.play('right', true);
-    }
-    else{
+    } else {
         player.setVelocityX(0);
         player.anims.play('idle', true);
     }
 
-    if (cursors.up.isDown && player.body.touching.down){
+    if (cursors.up.isDown && player.body.touching.down) {
         player.setVelocityY(gameOptions.saltoForca);
         player.anims.play('jump', true);
-    }
-    else if (cursors.down.isDown){
+    } else if (cursors.down.isDown) {
         player.setVelocityY(400);
     }
 
@@ -302,36 +262,19 @@ function update () {
 
 
     //TENTATIVA DE MUDAR DE LUGAR
-    if(enemy.x <= 100 && enemy.enemyVelocity < 0){
-        enemy.enemyVelocity *=-1;
+    if (enemy.x <= 100 && enemy.enemyVelocity < 0) {
+        enemy.enemyVelocity *= -1;
+        enemy.flipX = true;
+    } else if (enemy.x >= 700 && enemy.enemyVelocity > 0) {
+        enemy.enemyVelocity *= -1;
         enemy.flipX = true;
     }
-    else if(enemy.x >= 700 && enemy.enemyVelocity > 0){
-        enemy.enemyVelocity *=-1;
-        enemy.flipX = true;
-    }
+}
 
-
-
-
-
-
-    //Movimento das paredes
-
-    //jump(){
-    //if(this.player.body.touching.down || (this.playerSaltos > 0 &amp;&amp; this.playerSaltos < gameOptions.jumps )){
-    //if(this.player.body.touching.down){
-    //  this.playerSaltos = 0;
-    //}
-    //this.player.setVelocityY(gameOptions.jumpForce *-1);
-    // this.playerSaltos++;
-
-    //cancela a animação no salto
-    //   this.player.anims.stop();
-    // }
-    //}
-
-
+function onEvent(){
+    var wall = walls.create(800, 463, 'wall');
+    wall.setCollideWorldBounds(false);
+    wall.setVelocity(-80, 0);
 }
 
 
