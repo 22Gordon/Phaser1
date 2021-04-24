@@ -46,12 +46,14 @@ function preload () {
     this.load.image('platform', 'assets/Platform/platform.png');
     this.load.image('parede1', 'assets/Blocos/parede1.png');
     this.load.image('Ball', 'assets/Objects/Spiked Ball.png');
-    this.load.image('wall', 'assets/Blocos/parede3.png');
+    this.load.image('wall1', 'assets/Blocos/parede3.png');
+    this.load.image('wall2', 'assets/Blocos/parede1.png');
+    this.load.image('wall3', 'assets/Blocos/parede2.png');
     this.load.spritesheet('player', 'assets/Player/player.png', {
         frameWidth: 32,
         frameHeight: 32
     });
-    this.load.spritesheet('enemy', 'assets/Enemy/frog_left.png', {
+    this.load.spritesheet('enemy', 'assets/Enemy/frog.png', {
         frameWidth: 32,
         frameHeight: 32
     });
@@ -89,7 +91,7 @@ function create () {
     platforms.create(400, 568, 'platform').setScale(2).refreshBody();
 
     //Criar inimigo
-    enemy = this.physics.add.sprite(700, 450, 'enemy');
+    enemy = this.physics.add.sprite(760, 450, 'enemy');
 
     //Criar o player
     player = this.physics.add.sprite(100,450, 'player').setImmovable(false);
@@ -131,11 +133,17 @@ function create () {
 
     //Animação do inimigo
     this.anims.create({
-        key: 'run',
+        key: 'run_left',
         frames: this.anims.generateFrameNumbers('enemy', {start:0, end: 11}),
         frameRate: 10,
         repeat: -1
     });
+    this.anims.create({
+        key: 'run_right',
+        frames: this.anims.generateFrameNumbers('enemy', {start:12, end:23}),
+        frameRate: 10,
+        repeat: -1
+    })
 
 
     //adicionar ananases
@@ -151,7 +159,7 @@ function create () {
 
     //Colisão do player com o ecrã
     player.setCollideWorldBounds(true);
-    enemy.setCollideWorldBounds(true);
+    enemy.setCollideWorldBounds(false);
 
     //Colisão player com as plataformas
     this.physics.add.collider(player, platforms);
@@ -177,7 +185,7 @@ function create () {
     walls = this.physics.add.group();
     this.physics.add.collider(walls, platforms);
     this.physics.add.collider(player, walls, hitWalls, null, this)
-    timedEvent = this.time.addEvent({ delay: 5000, callback: onEvent, callbackScope: this, loop: true });
+    timedEvent = this.time.addEvent({ delay: 1005000, callback: wallEvent, callbackScope: this, loop: true });
 }
 
 //Caso haja sobreposição
@@ -195,10 +203,10 @@ function collectPoints (player, point) {
         });
         if (nivel % 5 === 0){
             // Escolher uma coordenada x aleatória, do lado oposto ao player
-            var x = (player.x < 400) ? Phaser.Math.Between(400, 800) : Phaser.Math.Between(0, 400);
+            var x1 = (player.x < 400) ? Phaser.Math.Between(400, 800) : Phaser.Math.Between(0, 400);
             //Criar a bomba
             bombas += 1;
-            var ball = balls.create(x, 16, 'Ball');
+            var ball = balls.create(x1, 16, 'Ball');
             ball.setBounce(1);
             ball.setCollideWorldBounds(true);
             ball.setVelocity(Phaser.Math.Between(-200,200), 20);
@@ -206,12 +214,27 @@ function collectPoints (player, point) {
     }
 }
 
-//Caso haja sobreposição com o inimigo
-function losePoints (enemy, points) {
-    points.disableBody(true, true);
+//Se o inimigo apanhar um ananás
+function losePoints (enemy, point) {
+    point.disableBody(true, true);
     if (score > 0){
         score -= 1;
         scoreText.setText('Score: ' + score);
+    }
+    if (points.countActive(true) === 0){
+        nivel += 1;
+        nivelText.setText('Nivel: ' + nivel);
+        points.children.iterate(function (child){
+            child.enableBody(true, child.x, 0, true, true);
+        });
+        if (nivel % 5 === 0){
+            var x2 = (player.x < 400) ? Phaser.Math.Between(400, 800) : Phaser.Math.Between(0, 400);
+            bombas += 1;
+            var ball = balls.create(x2, 16, 'Ball');
+            ball.setBounce(1);
+            ball.setCollideWorldBounds(true);
+            ball.setVelocity(Phaser.Math.Between(-200,200), 20);
+        }
     }
 }
 
@@ -236,6 +259,8 @@ function hitWalls (player, wall)
     gameOver = true;
 }
 
+let goingLeft = true;
+
 function update () {
 
     if (cursors.left.isDown) {
@@ -257,25 +282,42 @@ function update () {
     }
 
     //Movimento e animação do inimigo
-    enemy.setVelocityX(gameOptions.enemyVelocity);
-    enemy.anims.play('run', true);
-
-
-    //TENTATIVA DE MUDAR DE LUGAR
-    if (enemy.x <= 100 && enemy.enemyVelocity < 0) {
-        enemy.enemyVelocity *= -1;
-        enemy.flipX = true;
-    } else if (enemy.x >= 700 && enemy.enemyVelocity > 0) {
-        enemy.enemyVelocity *= -1;
-        enemy.flipX = true;
+    if (enemy.x < 20 && goingLeft) {
+        enemy.anims.play('run_right', true);
+        enemy.setVelocityX(80);
+        goingLeft = false;
+    } else if (enemy.x > 20 && goingLeft) {
+        enemy.setVelocityX(-80);
+        enemy.anims.play('run_left', true);
+    }
+    if (enemy.x > 780 && !goingLeft) {
+        enemy.anims.play('run_left', true);
+        enemy.setVelocityX(-80);
+        goingLeft = true;
+    } else if (enemy.x < 780 && !goingLeft) {
+        enemy.setVelocityX(80);
+        enemy.anims.play('run_right', true);
     }
 }
 
-function onEvent(){
-    var wall = walls.create(800, 463, 'wall');
-    wall.setCollideWorldBounds(false);
-    wall.setVelocity(-80, 0);
+function wallEvent(){
+    let aux = Math.floor((Math.random() * 3) + 1);
+    if (aux === 1){
+        var wall = walls.create(850, 448, 'wall1');
+        wall.setCollideWorldBounds(false);
+        wall.setVelocity(-80, 0);
+    } else if (aux === 2) {
+        var wall = walls.create(850, 488, 'wall2');
+        wall.setCollideWorldBounds(false);
+        wall.setVelocity(-80, 0);
+    } else if (aux === 3) {
+        var wall = walls.create(850, 463, 'wall3');
+        wall.setCollideWorldBounds(false);
+        wall.setVelocity(-80, 0);
+    }
 }
+
+
 
 
 
