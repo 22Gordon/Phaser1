@@ -34,16 +34,23 @@ var config = {
     }
 };
 
+function range(start, end) {
+    var ans = [];
+    for (let i = start; i <= end; i++) {
+        ans.push(i);
+    }
+    return ans;
+}
+
 let game = new Phaser.Game(config);
 let player;
 let background;
 let platform;
-let enemy;
 let point;
 
 function preload () {
     this.load.image('background', 'assets/background/montanhas.png');
-    this.load.image('platform', 'assets/Platform/platform.png');
+    this.load.image('platform', 'assets/Platform/platform2.png');
     this.load.image('parede1', 'assets/Blocos/parede1.png');
     this.load.image('Ball', 'assets/Objects/Spiked Ball.png');
     this.load.image('wall1', 'assets/Blocos/parede3.png');
@@ -89,9 +96,6 @@ function create () {
 
     //Criar o chão
     platforms.create(400, 568, 'platform').setScale(2).refreshBody();
-
-    //Criar inimigo
-    enemy = this.physics.add.sprite(760, 450, 'enemy');
 
     //Criar o player
     player = this.physics.add.sprite(100,450, 'player').setImmovable(false);
@@ -144,6 +148,9 @@ function create () {
         frameRate: 10,
         repeat: -1
     })
+    //grupo de inimigos
+    foes = this.physics.add.group();
+    var foe = foes.create(700, 450, 'enemy');
 
 
     //adicionar ananases
@@ -159,19 +166,18 @@ function create () {
 
     //Colisão do player com o ecrã
     player.setCollideWorldBounds(true);
-    enemy.setCollideWorldBounds(false);
 
     //Colisão player com as plataformas
     this.physics.add.collider(player, platforms);
-    this.physics.add.collider(enemy, platforms);
-    this.physics.add.collider(player, enemy);
+    this.physics.add.collider(foes, platforms);
+    this.physics.add.collider(player, foes);
 
     //Colisão dos ananases com o chão e com o player
     this.physics.add.collider(points, platforms);
 
     //Verifica a sobreposição do player com os ananases
     this.physics.add.overlap(player, points, collectPoints, null, this);
-    this.physics.add.overlap(enemy, points, losePoints, null ,this);
+    this.physics.add.overlap(foes, points, losePoints, null, this);
 
     balls = this.physics.add.group();
     this.physics.add.collider(balls, platforms);
@@ -185,7 +191,9 @@ function create () {
     walls = this.physics.add.group();
     this.physics.add.collider(walls, platforms);
     this.physics.add.collider(player, walls, hitWalls, null, this)
-    timedEvent = this.time.addEvent({ delay: 1005000, callback: wallEvent, callbackScope: this, loop: true });
+    timedEvent = this.time.addEvent({ delay: 5000, callback: wallEvent, callbackScope: this, loop: true });
+
+    timedEvent = this.time.addEvent({delay: 10000, callback: foeEvent, callbackScope: this, loop: true});
 }
 
 //Caso haja sobreposição
@@ -251,8 +259,7 @@ function hitBalls (player, ball){
 
 }
 
-function hitWalls (player, wall)
-{
+function hitWalls (player, wall) {
     this.physics.pause();
     player.setTint(0xff0000);
     player.anims.play('turn');
@@ -281,23 +288,32 @@ function update () {
         player.setVelocityY(400);
     }
 
-    //Movimento e animação do inimigo
-    if (enemy.x < 20 && goingLeft) {
-        enemy.anims.play('run_right', true);
-        enemy.setVelocityX(80);
-        goingLeft = false;
-    } else if (enemy.x > 20 && goingLeft) {
-        enemy.setVelocityX(-80);
-        enemy.anims.play('run_left', true);
-    }
-    if (enemy.x > 780 && !goingLeft) {
-        enemy.anims.play('run_left', true);
-        enemy.setVelocityX(-80);
-        goingLeft = true;
-    } else if (enemy.x < 780 && !goingLeft) {
-        enemy.setVelocityX(80);
-        enemy.anims.play('run_right', true);
-    }
+    //Movimento do grupo de inimigos
+    foes.children.iterate(function (foe) {
+        foe.setCollideWorldBounds(true);
+
+        if (foe.x < 20 && goingLeft) {
+            foe.anims.play('run_right', true);
+            foe.setVelocityX(60);
+            goingLeft = false;
+        } else if (foe.x > 20 && goingLeft) {
+            foe.setVelocityX(-60);
+            foe.anims.play('run_left', true);
+        }
+        if (foe.x > 780 && !goingLeft) {
+            foe.anims.play('run_left', true);
+            foe.setVelocityX(-60);
+            goingLeft = true;
+        } else if (foe.x < 780 && !goingLeft) {
+            foe.setVelocityX(60);
+            foe.anims.play('run_right', true);
+        }
+
+        if (foe.y > 570) {
+            foe.setVelocityX(0);
+            foe.disableBody(true, true);
+        }
+    });
 }
 
 function wallEvent(){
@@ -317,8 +333,6 @@ function wallEvent(){
     }
 }
 
-
-
-
-
-
+function foeEvent(){
+    var foe = foes.create(760, 500, 'enemy');
+}
